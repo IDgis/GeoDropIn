@@ -3,6 +3,7 @@ import './form.css';
 
 import { Geodata, GeodataSchema } from '/imports/api/collections/geodata.js';
 import { Attachment } from '/imports/api/collections/attachment.js';
+import { CouplingAttData, CouplingAttDataSchema } from '/imports/api/collections/couplingAttData.js';
 
 Template.form.onRendered(function() {
 	var attachmentIds = [];
@@ -59,7 +60,20 @@ function findIndex(obj) {
 	return obj.index === Session.get('activeIndex');
 }
 
-AutoForm.addHooks('geodataform',{
+AutoForm.addHooks('geodataform', {
+	after: {
+		insert: function(error, result) {
+			var dataId = result;
+			var attachmentItems = Session.get('attachmentIds');
+			var attachmentIds = [];
+			
+			attachmentItems.forEach(function(item) {
+				attachmentIds.push(item.fileId);
+			});
+			
+			CouplingAttData.insert({dataId: dataId, attachmentIds: attachmentIds});
+		}
+	},
 	onSuccess: function() {
 		Router.go('list');
 	}
