@@ -1,5 +1,5 @@
 <template name="list">
-	<div>
+	<div id="app-buttons">
 		<div class="form-inline">
 			<div class="col-xs-offset-4 col-xs-4">
 				<p class="text-center">
@@ -11,5 +11,10 @@
 				</p>
 			</div>
 		</div>
+	</div>
+	<div id="list-metadata" class="col-xs-12">
+		{{#each showAttachment}}
+			<div>{{uploadedAt}}</div>
+		{{/each}}
 	</div>
 </template>

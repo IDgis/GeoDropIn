@@ -9,13 +9,13 @@ Router.configure({
 	layoutTemplate: 'main'
 });
 
-Router.route('/index', function () {
+Router.route('/index', function() {
 	this.render('list');
 	}, {
 		name: 'list'
 });
 
-Router.route('/form', function () {
+Router.route('/form', function() {
 	this.render('form');
 	}, {
 		name: 'form'
