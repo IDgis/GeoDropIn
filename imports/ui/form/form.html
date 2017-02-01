@@ -6,13 +6,21 @@
 				{{> afQuickField name="description" placeholder="schemaLabel"}}
 				{{> afQuickField name="date"}}
 			</fieldset>
-			<div class="form-group">
-				<label>Bijlage</label>
-				<input type="file" data-index="0" class="js-attachment">
-				<p class="help-block">Voer hier de zip met de shape file in.</p>
+			<div id="div-attachments">
+				<div class="form-group div-attachment" id="div-attachment-first">
+					<label>Bijlage </label>
+					<input type="file" data-index="0" class="js-attachment">
+				</div>
 			</div>
-			<button type="submit" id="js-form-submit" class="btn btn-default">Opslaan</button>
-			<button type="button" id="js-form-cancel" class="btn btn-default">Annuleren</button>
+			<div class="div-with-margin">
+				<button type="button" id="js-add-attachment" class="btn btn-xs btn-default">
+					Voeg extra bijlage toe
+				</button>
+			</div>
+			<div class="div-with-margin">
+				<button type="submit" id="js-form-submit" class="btn btn-primary">Opslaan</button>
+				<button type="button" id="js-form-cancel" class="btn btn-default">Annuleren</button>
+			</div>
 		{{/autoForm}}
 	</div>
 </template>

@@ -53,6 +53,21 @@ Template.form.events({
 			
 			Session.set('attachmentIds', attachmentIds);
 		});
+	},
+	'click #js-add-attachment': function() {
+		var divAttTemp = $('#div-attachment-first');
+		var newAttIndex = $('.div-attachment').length;
+		
+		var newAtt = divAttTemp.clone()[0];
+		$(newAtt).removeAttr('id');
+		
+		var span = document.createElement('span');
+		$(span).attr('class', 'glyphicon glyphicon-remove js-remove-attachment');
+		
+		$('label', newAtt)[0].append(span);
+		$('input', newAtt).attr('data-index', newAttIndex);
+		
+		$('#div-attachments').append(newAtt);
 	}
 });
 
