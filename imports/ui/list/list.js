@@ -6,8 +6,11 @@ import { Attachment } from '/imports/api/collections/attachment.js';
 import { CouplingAttData, CouplingAttDataSchema } from '/imports/api/collections/couplingAttData.js';
 
 Template.list.helpers({
-	showAttachment: function(){
-		return Attachment.find();
+	showGeodata: function(){
+		return Geodata.find();
+	},
+	showAttachments: function(id){
+		return CouplingAttData.find({dataId: id});
 	}
 });
 
