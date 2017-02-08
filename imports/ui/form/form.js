@@ -52,6 +52,7 @@ Template.form.events({
 			attachmentIds.push(att);
 			
 			Session.set('attachmentIds', attachmentIds);
+			$(e.target).attr('data-id', fileObj._id);
 		});
 	},
 	'click #js-add-attachment': function() {
@@ -66,8 +67,32 @@ Template.form.events({
 		
 		$('label', newAtt)[0].append(span);
 		$('input', newAtt).attr('data-index', newAttIndex);
+		$('input', newAtt).removeAttr('data-id');
+		$('input', newAtt).val('');
 		
 		$('#div-attachments').append(newAtt);
+	},
+	'click .js-remove-attachment': function(e) {
+		var context = $(e.target).parents('.div-attachment')[0];
+		var item = $('input', context)[0];
+		var index = $(item).attr('data-index');
+		
+		var attachmentIds = Session.get('attachmentIds');
+		
+		Session.set('activeIndex', index);
+		var prevAtt = attachmentIds.find(findIndex);
+		
+		if(typeof prevAtt !== 'undefined') {
+			var prevAttIndex = attachmentIds.indexOf(prevAtt);
+			if(prevAttIndex > -1) {
+				attachmentIds.splice(prevAttIndex, 1);
+				Attachment.remove({_id: prevAtt.fileId});
+			}
+		}
+		
+		Session.set('attachmentIds', attachmentIds);
+		
+		$(context).remove();
 	}
 });
 
