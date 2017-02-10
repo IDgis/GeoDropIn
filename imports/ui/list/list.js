@@ -11,6 +11,9 @@ Template.list.helpers({
 	},
 	showAttachments: function(id){
 		return CouplingAttData.find({dataId: id});
+	},
+	getAttachmentUrl: function(id) {
+		return Attachment.findOne({_id: id}).copies.Attachment.key;	
 	}
 });
 
