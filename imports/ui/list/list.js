@@ -20,5 +20,17 @@ Template.list.helpers({
 Template.list.events({
 	'click #add-data-btn': function() {
 		Router.go('formadd');
+	},
+	'click .js-remove-data': function(e) {
+		var geodataId = e.target.id;
+		var couplingObject = CouplingAttData.findOne({dataId: geodataId});
+		var couplingId = couplingObject._id;
+		var attIds = couplingObject.attachmentIds;
+		
+		Geodata.remove({_id: geodataId});
+		CouplingAttData.remove({_id: couplingId});
+		attIds.forEach(function(item) {
+			Attachment.remove({_id: item});
+		});
 	}
 });
