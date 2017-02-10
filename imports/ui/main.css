@@ -1,0 +1,6 @@
+body {font-family:verdana;}
+#banner {height:150px;}
+.logo {padding:20px 10px 10px;max-height:150px;max-width:300px;}
+#page-content {padding-left:50px;padding-right:50px;height:auto;}
+.div-with-margin {margin-top:15px;margin-bottom:15px;}
+.negate-margin {margin:0;}

@@ -1,3 +1,33 @@
 <template name="form">
-	<div></div>
+	<div class="col-xs-offset-4 col-xs-4">
+		{{#autoForm collection=geodata schema=geodataSchema id="geodataform" type=geodataType doc=geodataDoc}}
+			<fieldset>
+				{{> afQuickField name="title" placeholder="schemaLabel"}}
+				{{> afQuickField name="description" placeholder="schemaLabel"}}
+				{{> afQuickField name="date"}}
+			</fieldset>
+			<div id="div-attachments">
+				<div class="form-group div-attachment" id="div-attachment-first">
+					<label>Bijlage </label>
+					<div id="saved-atts">
+						{{#each showAttachmentNames}}
+							<p class="negate-margin">{{name}} 
+								<span id="{{id}}" class="glyphicon glyphicon-remove js-remove-previous-attachment"></span>
+							</p>
+						{{/each}}
+					</div>
+					<input type="file" data-index="0" class="js-attachment">
+				</div>
+			</div>
+			<div class="div-with-margin">
+				<button type="button" id="js-add-attachment" class="btn btn-xs btn-default">
+					Voeg extra bijlage toe
+				</button>
+			</div>
+			<div class="div-with-margin">
+				<button type="submit" id="js-form-submit" class="btn btn-primary">Opslaan</button>
+				<button type="button" id="js-form-cancel" class="btn btn-default">Annuleren</button>
+			</div>
+		{{/autoForm}}
+	</div>
 </template>
