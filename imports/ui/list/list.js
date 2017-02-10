@@ -19,6 +19,6 @@ Template.list.helpers({
 
 Template.list.events({
 	'click #add-data-btn': function() {
-		Router.go('form');
+		Router.go('formadd');
 	}
 });

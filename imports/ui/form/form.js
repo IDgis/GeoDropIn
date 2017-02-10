@@ -6,25 +6,46 @@ import { Attachment } from '/imports/api/collections/attachment.js';
 import { CouplingAttData, CouplingAttDataSchema } from '/imports/api/collections/couplingAttData.js';
 
 Template.form.onRendered(function() {
-	var attachmentIds = [];
-	Session.set('attachmentIds', attachmentIds);
+	Session.set('attachmentIds', []);
+	Session.set('attachmentRemoveIds', []);
 });
 
 Template.form.helpers({
 	geodataDoc: function() {
-		/*if(Session.get("selectedTextId")) {
+		if(Session.get('selectedGeodataId') !== null) {
 			return this;
 		} else {
 			return null ;
-		}*/
-		
-		return null;
+		}
+	},
+	geodataType: function() {
+		if(Session.get('selectedGeodataId') !== null) {
+			return 'update';
+		} else {
+			return 'insert';
+		}
 	},
 	geodata: function() {
 		return Geodata;
 	},
 	geodataSchema: function() {
 		return GeodataSchema;
+	},
+	showAttachmentNames: function() {
+		var attObjects = [];
+		
+		if(Session.get('selectedGeodataId') !== null) {
+			var atts = CouplingAttData.findOne({dataId: Session.get('selectedGeodataId')});
+			if(typeof atts !== 'undefined') {
+				atts.attachmentIds.forEach(function(item) {
+					var att = Attachment.findOne({_id: item});
+					var obj = {'id': att._id, 'name': att.copies.Attachment.key};
+					attObjects.push(obj);
+				});
+			}
+		}
+		
+		return attObjects;
 	}
 });
 
@@ -93,6 +114,14 @@ Template.form.events({
 		Session.set('attachmentIds', attachmentIds);
 		
 		$(context).remove();
+	},
+	'click .js-remove-previous-attachment': function(e) {
+		var attRemove = Session.get('attachmentRemoveIds');
+		attRemove.push(e.target.id);
+		Session.set('attachmentRemoveIds', attRemove);
+		
+		var p = $(e.target).parents('p')[0];
+		$(p).remove();
 	}
 });
 
@@ -112,6 +141,27 @@ AutoForm.addHooks('geodataform', {
 			});
 			
 			CouplingAttData.insert({dataId: dataId, attachmentIds: attachmentIds});
+		},
+		update: function(error, result) {
+			var attRemove = Session.get('attachmentRemoveIds');
+			var attCoupling = CouplingAttData.findOne({dataId: this.docId});
+			var attIds = attCoupling.attachmentIds;
+			
+			attRemove.forEach(function(item) {
+				var attIndex = attIds.indexOf(item);
+				if(attIndex > -1) {
+					attIds.splice(attIndex, 1);
+					Attachment.remove({_id: item});
+				}
+			});
+			
+			var attachmentItems = Session.get('attachmentIds');
+			attachmentItems.forEach(function(item) {
+				attIds.push(item.fileId);
+			});
+			
+			var couplingId = CouplingAttData.findOne({dataId: this.docId})._id;
+			CouplingAttData.update({_id: couplingId}, {$set: {attachmentIds: attIds}});
 		}
 	},
 	onSuccess: function() {

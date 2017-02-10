@@ -1,6 +1,6 @@
 <template name="form">
 	<div class="col-xs-offset-4 col-xs-4">
-		{{#autoForm collection=geodata schema=geodataSchema type="insert" id="geodataform" doc=geodataDoc}}
+		{{#autoForm collection=geodata schema=geodataSchema id="geodataform" type=geodataType doc=geodataDoc}}
 			<fieldset>
 				{{> afQuickField name="title" placeholder="schemaLabel"}}
 				{{> afQuickField name="description" placeholder="schemaLabel"}}
@@ -9,6 +9,13 @@
 			<div id="div-attachments">
 				<div class="form-group div-attachment" id="div-attachment-first">
 					<label>Bijlage </label>
+					<div id="saved-atts">
+						{{#each showAttachmentNames}}
+							<p class="negate-margin">{{name}} 
+								<a><span id="{{id}}" class="glyphicon glyphicon-remove js-remove-previous-attachment"></span></a>
+							</p>
+						{{/each}}
+					</div>
 					<input type="file" data-index="0" class="js-attachment">
 				</div>
 			</div>

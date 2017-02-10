@@ -15,14 +15,16 @@
 	<div id="list-metadata" class="col-xs-12">
 		<table class="table table-hover">
 			<tr>
-				<th class="col-xs-4"><span>Titel</span></th>
-				<th class="col-xs-4"><span>Datum</span></th>
-				<th class="col-xs-4"><span>Bijlage</span></th>
+				<th class="col-xs-1"><span>Actie</span></th>
+				<th class="col-xs-6"><span>Titel</span></th>
+				<th class="col-xs-3"><span>Datum</span></th>
+				<th class="col-xs-2"><span>Bijlage</span></th>
 			</tr>
 			{{#each showGeodata}}
 				<tr>
+					<td class="col-xs-1"><a href="/form/edit/{{_id}}"><span class="glyphicon glyphicon-edit"></span></a></td>
 					<td class="col-xs-6">{{title}}</td>
-					<td class="col-xs-4">{{formatDate date}}</td>
+					<td class="col-xs-3">{{formatDate date}}</td>
 					<td class="col-xs-2">
 						{{#each showAttachments _id}}
 							{{#each attachmentIds}}
