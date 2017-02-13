@@ -1,3 +1,13 @@
 .js-attachment {width:100%;}
 .js-remove-attachment:hover, .js-remove-previous-attachment:hover {cursor:pointer}
 #saved-atts {margin-bottom:10px;}
+
+#form-separation-row {height:100px;background-color:#ffffff;}
+#form-separation-row-center {background-color:#ffffff;height:100px;}
+
+#form-page {padding-top:15px;padding-bottom:5px;background-color:#ffffff;}
+
+#form-layout-layer-radius-bottom-left {height:100px;background-color:#C4C8B7;
+	border:1px solid #C4C8B7;border-radius:0 0 30px 0;background-clip:padding-box;}
+#form-layout-layer-radius-bottom-right {height:100px;background-color:#C4C8B7;
+	border:1px solid #C4C8B7;border-radius:0 0 0 30px;background-clip:padding-box;}

@@ -1,7 +1,8 @@
 <template name="list">
 	<div id="app-buttons">
 		<div class="form-inline">
-			<div class="col-xs-offset-4 col-xs-4">
+			<div class="col-xs-4" id="index-layout-layer-radius-bottom-left"></div>
+			<div class="col-xs-4" id="app-buttons-content">
 				<p class="text-center">
 					<button id="add-data-btn" class="btn btn-default">
 						<span class="glyphicon glyphicon-plus"></span>
@@ -10,9 +11,10 @@
 					<input id="search-data-input" class="form-control" type="text" placeholder="Zoeken"/>
 				</p>
 			</div>
+			<div class="col-xs-4" id="index-layout-layer-radius-bottom-right"></div>
 		</div>
 	</div>
-	<div id="list-metadata" class="col-xs-12">
+	<div id="list-metadata" class="col-xs-offset-1 col-xs-10">
 		<table class="table table-hover">
 			<tr>
 				<th class="col-xs-1"><span>Actie</span></th>
