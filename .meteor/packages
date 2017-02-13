@@ -31,3 +31,6 @@ cfs:filesystem
 cfs:gridfs
 
 momentjs:moment
+
+accounts-password
+useraccounts:bootstrap
