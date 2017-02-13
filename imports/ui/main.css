@@ -9,3 +9,7 @@ body {font-family:verdana;background-color:#C4C8B7;}
 
 #logo-div-client {border:1px solid #ffffff;border-radius: 0 0 30px 0;background-clip:padding-box;}
 #logo-div-idgis {border:1px solid #ffffff;border-radius: 0 0 0 30px;background-clip:padding-box;}
+
+#login-div {background-color:#ffffff;}
+
+#app-logout {position:absolute;top:5px;right:5px;}
