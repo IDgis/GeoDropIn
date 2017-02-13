@@ -22,3 +22,17 @@ Router.route('/files/:id', function() {
 	this.response.write(data);
 	this.response.end();
 }, {where: 'server'});
+
+Router.route('/logos/:filename', function() {
+	var fs = require('fs');
+	var path = require('path');
+	
+	var filePath = path.resolve('/GeoDropInLogos/' + this.params.filename);
+	var data = fs.readFileSync(filePath);
+    
+	this.response.writeHead(200, {
+	    'Content-Type': 'image/png'
+	  });
+	this.response.write(data);
+	this.response.end();
+}, {where: 'server'});
