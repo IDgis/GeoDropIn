@@ -1,5 +1,5 @@
 export const Attachment = new FS.Collection("Attachment", {
-	stores: [new FS.Store.FileSystem("Attachment", {path: "/shapefiles"})]
+	stores: [new FS.Store.FileSystem("Attachment", {path: "/GeoDropInFiles"})]
 });
 
 Attachment.allow({

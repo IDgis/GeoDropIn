@@ -11,7 +11,7 @@ Router.route('/files/:id', function() {
 	var filename = att.copies.Attachment.key;
 	var contentType = att.copies.Attachment.type;
 	
-	var filePath = path.resolve('/shapefiles/' + filename);
+	var filePath = path.resolve('/GeoDropInFiles/' + filename);
 	var data = fs.readFileSync(filePath);
     
 	this.response.writeHead(200, {
