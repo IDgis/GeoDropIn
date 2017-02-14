@@ -11,13 +11,27 @@ Router.route('/files/:id', function() {
 	var filename = att.copies.Attachment.key;
 	var contentType = att.copies.Attachment.type;
 	
-	var filePath = path.resolve('/shapefiles/' + filename);
+	var filePath = path.resolve('/GeoDropInFiles/' + filename);
 	var data = fs.readFileSync(filePath);
     
 	this.response.writeHead(200, {
 	    'Content-Type': contentType,
 	    'Content-Disposition': 'attachment; filename=' + filename,
 	    'Content-Length': data.length
+	  });
+	this.response.write(data);
+	this.response.end();
+}, {where: 'server'});
+
+Router.route('/logos/:filename', function() {
+	var fs = require('fs');
+	var path = require('path');
+	
+	var filePath = path.resolve('/GeoDropInLogos/' + this.params.filename);
+	var data = fs.readFileSync(filePath);
+    
+	this.response.writeHead(200, {
+	    'Content-Type': 'image/png'
 	  });
 	this.response.write(data);
 	this.response.end();

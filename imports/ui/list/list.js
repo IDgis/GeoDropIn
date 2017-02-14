@@ -9,7 +9,9 @@ import { CouplingAttData, CouplingAttDataSchema } from '/imports/api/collections
 
 Template.list.helpers({
 	showGeodata: function(){
-		return Geodata.find();
+		if(Meteor.user()) {
+			return Geodata.find({user: Meteor.user().username}, {sort: {date: -1}});
+		}
 	},
 	showAttachments: function(id){
 		return CouplingAttData.find({dataId: id});

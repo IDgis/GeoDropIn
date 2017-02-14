@@ -14,8 +14,20 @@ export const GeodataSchema = new SimpleSchema({
     }
   },
   date: {
-    type: Date,
+  	type: Date,
     label: 'Datum'
+  },
+  user: {
+	type: String,
+	autoValue: function() {
+		return Meteor.user().username;
+    }
+  },
+  lastRevisionDate: {
+	type: Date,
+	autoValue: function() {
+        return new Date();
+    }
   }
 });
 

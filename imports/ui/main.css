@@ -13,3 +13,5 @@ body {font-family:verdana;background-color:#C4C8B7;}
 #login-div {background-color:#ffffff;}
 
 #app-logout {position:absolute;top:5px;right:5px;}
+
+.http-msg {background-color:white;height:80px;padding-top:40px;}
