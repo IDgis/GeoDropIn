@@ -1,6 +1,6 @@
 {
   "public": {
-	  "directoryFiles": "/GeoDropInFiles",
-	  "directoryLogos": "/GeoDropInLogos"
+	  "directoryFiles": "/var/lib/geodropinfiles",
+	  "directoryLogos": "/var/lib/geodropinlogos"
   }
 }
