@@ -13,7 +13,8 @@ Router.route('/files/:id', function() {
 	var filename = att.copies.Attachment.key;
 	var contentType = att.copies.Attachment.type;
 	
-	var filePath = path.resolve(Meteor.settings.public.directoryFiles + '/' + filename);
+	var pathDir = '/var/lib/geodropinfiles/';
+	var filePath = path.resolve(pathDir + filename);
 	var data = fs.readFileSync(filePath);
     
 	this.response.writeHead(200, {
@@ -30,9 +31,10 @@ Router.route('/logos/:filename', function() {
 	var fs = require('fs');
 	var path = require('path');
 	
+	var pathDir = '/var/lib/geodropinlogos/';
 	var filename = this.params.filename;
 	
-	var filePath = path.resolve(Meteor.settings.public.directoryLogos + '/' + filename);
+	var filePath = path.resolve(pathDir + filename);
 	var data = fs.readFileSync(filePath);
     
 	this.response.writeHead(200, {
