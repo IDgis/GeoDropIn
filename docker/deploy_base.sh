@@ -15,6 +15,3 @@ docker-compose \
 docker-compose \
         $COMPOSE_ARGS \
         up -d
-        
-docker cp proxy.conf nginx_nginx-proxy_1:/etc/nginx/conf.d
-docker restart nginx_nginx-proxy_1
