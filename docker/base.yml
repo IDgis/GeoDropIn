@@ -5,8 +5,8 @@ services:
     restart: always
     image: jwilder/nginx-proxy
     ports:
-      - "136.243.17.244:80:80"
-      - "136.243.17.244:443:443"
+      - "136.243.17.245:80:80"
+      - "136.243.17.245:443:443"
     environment:
       - WEBSOCKETS=1
     volumes:
