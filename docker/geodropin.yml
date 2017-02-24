@@ -1,0 +1,29 @@
+version: '2'
+
+volumes:
+  geodropinfiles:
+  geodropinlogos:
+  mongo_db:
+
+services:
+  gdi.web:
+    restart: always
+    image: idgis/geodropin:0.1.0
+    environment:
+      - MONGO_URL=mongodb://gdi.db/geodropin
+      - ROOT_URL=http://geodropin.geopublisher.nl
+      - VIRTUAL_HOST=geodropin.geopublisher.nl
+    volumes:
+      - geodropinfiles:/var/lib/geodropinfiles
+      - geodropinlogos:/var/lib/geodropinlogos
+
+  gdi.db:
+    restart: always
+    image: mongo:3.2.11
+    volumes:
+      - mongo_db:/data/db
+      
+networks:
+  default:
+    external:
+      name: gdi_proxy
