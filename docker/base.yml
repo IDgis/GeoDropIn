@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+  nginx-proxy:
+    restart: always
+    image: jwilder/nginx-proxy
+    ports:
+      - "136.243.17.244:80:80"
+      - "136.243.17.244:443:443"
+    environment:
+      - WEBSOCKETS=1
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      
+networks:
+  default:
+    external:
+      name: gdi_proxy

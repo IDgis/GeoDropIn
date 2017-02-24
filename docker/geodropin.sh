@@ -12,6 +12,11 @@ cd $COPIED_APP_PATH
 
 echo "=> Executing NPM install --production"
 meteor npm install --production
+meteor npm install --save babel-runtime
+meteor npm install --save bcrypt
+meteor npm install --save file-system
+meteor npm install --save meteor-node-stubs
+meteor npm install --save path
 
 echo "=> Executing Meteor Build..."
 export

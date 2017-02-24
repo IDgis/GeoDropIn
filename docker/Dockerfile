@@ -1,8 +1,8 @@
 FROM abernix/meteord:base
 MAINTAINER IDgis bv
 
+ENV NODE_VERSION ${NODE_VERSION:-6.10.0}
 ARG NODE_VERSION
-ENV NODE_VERSION ${NODE_VERSION:-4.7.2}
 
 COPY ./ /app
 COPY geodropin.sh $METEORD_DIR/lib
