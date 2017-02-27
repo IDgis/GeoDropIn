@@ -13,6 +13,8 @@ services:
       - MONGO_URL=mongodb://gdi.db/geodropin
       - ROOT_URL=http://acc-geodropin.geopublisher.nl
       - VIRTUAL_HOST=acc-geodropin.geopublisher.nl
+      - LETSENCRYPT_HOST=acc-geodropin.geopublisher.nl
+      - LETSENCRYPT_EMAIL=admin@geopublisher.nl
     volumes:
       - geodropinfiles:/var/lib/geodropinfiles
       - geodropinlogos:/var/lib/geodropinlogos
@@ -22,7 +24,7 @@ services:
     image: mongo:3.2.11
     volumes:
       - mongo_db:/data/db
-      
+
 networks:
   default:
     external:
