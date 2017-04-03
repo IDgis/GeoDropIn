@@ -4,6 +4,8 @@ volumes:
   geodropinfiles:
   geodropinlogos:
   mongo_db:
+  oracle_db:
+  geodropin_shapefiles:
 
 services:
   gdi.web:
@@ -24,7 +26,22 @@ services:
     image: mongo:3.2.11
     volumes:
       - mongo_db:/data/db
-
+  
+  gdi.oracle:
+    restart: always
+    image: wnameless/oracle-xe-11g:latest
+    ports:
+      - "136.243.17.245:49160:22"
+      - "136.243.17.245:49161:1521"
+    volumes:
+      - oracle_db:/u01/app/oracle
+  
+  gdi.ogr2ogr:
+    image: idgis/ogr2ogr
+    tty: true
+    volumes:
+      - geodropin_shapefiles:/var/lib/shapefiles
+      
 networks:
   default:
     external:
