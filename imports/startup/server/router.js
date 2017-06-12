@@ -75,6 +75,29 @@ Router.route('/json/all/:user', function() {
 	this.response.end(EJSON.stringify(json, {indent: true}));
 }, {where: 'server'});
 
+Router.route('/json/:id', function() {
+	var id = this.params.id;
+	
+	var object = Geodata.findOne({_id: id});
+	
+	var attUrls = [];
+	var cad = CouplingAttData.findOne({dataId: object._id});
+	cad.attachmentIds.forEach(function(item) {
+		var attUrl = Meteor.absoluteUrl() + 'files/' + item;
+		attUrls.push(attUrl);
+	});
+	
+	var json = {_id: object._id, title: object.title, description: object.description, 
+			date: object.date, user: object.user, lastRevisionDate: object.lastRevisionDate,
+			attachmentIds: attUrls};
+	
+	this.response.writeHead(200, {
+	    'Content-Type': 'application/json; charset=UTF-8'
+	});
+	
+	this.response.end(EJSON.stringify(json, {indent: true}));
+}, {where: 'server'});
+
 Router.route('/json/twoweeks/:user', function() {
 	var user = this.params.user;
 	var json = [];

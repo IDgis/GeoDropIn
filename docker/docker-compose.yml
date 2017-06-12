@@ -1,0 +1,306 @@
+version: '2'
+
+volumes:
+  base_certs:
+  base_vhost:
+  base_html:
+  geodropinfiles:
+  geodropinlogos:
+  mongo_db:
+  oracle_db:
+  geodropin_shapefiles:
+  geodropin_tnsadmin:
+  pub_db_data:
+  pub_db_logs:
+  pub_service_raster:
+  pub_service_sslconf:
+  pub_geoserver_staging_data:
+  pub_geoserver_public_data:
+  pub_geoserver_secure_data: 
+  pub_geoserver_wmsonly_data:
+
+services:
+  nginx_proxy:
+    restart: always
+    build: nginx
+    ports:
+      - "${IP_ADDR}:${HTTP_PORT}:${HTTP_PORT}"
+      - "${IP_ADDR}:${HTTPS_PORT}:${HTTPS_PORT}"
+    volumes:
+      - base_certs:/etc/nginx/certs:ro
+      - base_vhost:/etc/nginx/vhost.d
+      - base_html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  nginx_letsencrypt:
+    restart: always
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    volumes_from:
+      - nginx_proxy
+    volumes:
+      - base_certs:/etc/nginx/certs:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  
+  zookeeper:
+    image: jplock/zookeeper
+    restart: always
+    
+  gdi.web:
+    restart: always
+    image: idgis/geodropin:0.1.1
+    environment:
+      - MONGO_URL=mongodb://gdi.db/geodropin
+      - ROOT_URL=http://${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}
+      - LETSENCRYPT_HOST=${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    volumes:
+      - geodropinfiles:/var/lib/geodropinfiles
+      - geodropinlogos:/var/lib/geodropinlogos
+
+  gdi.db:
+    restart: always
+    image: mongo:3.2.11
+    volumes:
+      - mongo_db:/data/db
+      
+  gdi.oracle.metadata:
+    image: idgis/oracle-metadata
+  
+  gdi.oracle:
+    restart: always
+    image: wnameless/oracle-xe-11g:latest
+    ports:
+      - "${IP_ADDR}:49160:22"
+      - "${IP_ADDR}:49161:1521"
+    volumes:
+      - oracle_db:/u01/app/oracle
+  
+  gdi.ogr2ogr:
+    build: ogr2ogr
+    tty: true
+    environment:
+      - LD_LIBRARY_PATH=/opt/instantclient_12_1
+      - TNS_ADMIN=/opt/instantclient_12_1
+      - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/instantclient_12_1
+    volumes:
+      - geodropin_shapefiles:/var/lib/shapefiles
+      - geodropin_tnsadmin:/opt/instantclient_12_1
+    links:
+      - nginx_proxy:${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}
+      
+  pub.db:
+    image: idgis/geopublisher_database:${PUB_VERSION}
+    restart: always
+    environment:
+      - PG_USER=publisher
+      - PG_PASSWORD=${PUB_PG_PASSWORD}
+    volumes:
+      - pub_db_data:/var/lib/postgresql
+      - pub_db_logs:/var/log/postgresql
+      
+  pub.db.init:
+    build: pub-db-init
+    depends_on:
+      - pub.db
+    environment:
+      - PG_HOST=pub.db
+      - PG_PORT=5432
+      - PG_DBNAME=publisher
+      - PG_USER=publisher
+      - PG_PASSWORD=${PUB_PG_PASSWORD}
+      - DATASOURCE_0=geodropin-vector,Vectordata
+      - ENVIRONMENT_0=geoserver-public,Publieke services,false,http://${DOMAIN_PREFIX}services${DOMAIN_SUFFIX}:${HTTP_PORT}/geoserver/,false
+      - ENVIRONMENT_1=geoserver-secure,Beveiligde services,true,https://${DOMAIN_PREFIX}secure-services${DOMAIN_SUFFIX}:${HTTPS_PORT}/geoserver/,false
+      - ENVIRONMENT_2=geoserver-wmsonly,Alleen WMS services,false,http://${DOMAIN_PREFIX}wmsonly-services${DOMAIN_SUFFIX}:${HTTP_PORT}/geoserver/,true
+    
+  pub.service:
+    image: idgis/geopublisher_service:${PUB_VERSION}
+    restart: always
+    depends_on:
+      - pub.db
+      - zookeeper
+    ports:
+      - "${IP_ADDR}:4242:4242"
+    environment:
+      - PG_HOST=pub.db
+      - PG_PORT=5432
+      - PG_DBNAME=publisher
+      - PG_USER=publisher
+      - PG_PASSWORD=${PUB_PG_PASSWORD}
+      - GEOSERVER_USER=admin
+      - GEOSERVER_PASSWORD=${PUB_GEOSERVER_PASSWORD}
+      - AKKA_HOSTNAME=pub.service
+      - AKKA_LOGLEVEL=DEBUG
+      - ZOOKEEPER_HOSTS=zookeeper
+      - METADATA_URL_PREFIX=http://${DOMAIN_PREFIX}metadata${DOMAIN_SUFFIX}:${HTTP_PORT}/metadata/dataset/
+      - SSL_PRIVATE_KEYSTORE=/etc/geo-publisher/ssl/private.jks
+      - SSL_PRIVATE_KEYSTORE_PASSWORD=harvester
+      - SSL_TRUSTED_KEYSTORE=/etc/geo-publisher/ssl/trusted.jks
+      - SSL_TRUSTED_KEYSTORE_PASSWORD=harvester
+      - RASTER_DIR=/var/lib/geo-publisher/raster
+      - INCLUDE_CONFIDENTIAL=${PUB_INCLUDE_CONFIDENTIAL}
+      - JAVA_OPTS=-Xmx256M -Duser.timezone=${TIME_ZONE}
+    volumes:
+      - pub_service_raster:/var/lib/geo-publisher/raster
+      - pub_service_sslconf:/etc/geo-publisher/ssl
+    
+  pub.web:
+    image: idgis/geopublisher_web:${PUB_VERSION}
+    restart: always
+    depends_on:
+      - pub.service
+    environment:
+      - AKKA_HOSTNAME=pub.web
+      - SERVICE_HOST=pub.service
+      - ADMIN_PASSWORD=${PUB_ADMIN_PASSWORD}
+      - GEOSERVER_DOMAIN=${DOMAIN_PREFIX}staging-services${DOMAIN_SUFFIX}:${HTTP_PORT}
+      - DATASET_METADATA_URL_PREFIX=https://${DOMAIN_PREFIX}metadata${DOMAIN_SUFFIX}:${HTTPS_PORT}/metadata/dataset/
+      - SERVICE_METADATA_URL_PREFIX=https://${DOMAIN_PREFIX}metadata${DOMAIN_SUFFIX}:${HTTPS_PORT}/metadata/service/
+      - CLIENT_LOGO=${PUB_CLIENT_LOGO}
+      - CLIENT_URL=${PUB_CLIENT_URL}
+      - PREVIEW_BBOX=${PUB_PREVIEW_BBOX}
+      - METADATA_BBOX=${PUB_METADATA_BBOX}
+      - JAVA_OPTS=-Xmx32M -Duser.timezone=${TIME_ZONE}"
+      - METADATA_STYLESHEET_URL_PREFIX=/metadata/stylesheets/
+      - LETSENCRYPT_HOST=${DOMAIN_PREFIX}admin${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    
+  pub.metadata:
+    image: idgis/geopublisher_metadata:${PUB_VERSION}
+    restart: always
+    depends_on:
+      - pub.db  
+    environment:
+      - PG_HOST=pub.db
+      - PG_PORT=5432
+      - PG_DBNAME=publisher
+      - PG_USER=publisher
+      - PG_PASSWORD=${PUB_PG_PASSWORD}
+      - DOWNLOAD_URL_PREFIX=https://${DOMAIN_PREFIX}download${POR_DOMAIN_SUFFIX}:${HTTPS_PORT}/download/
+      - VIEWER_URL_PREFIX_PUBLIC=http://${DOMAIN_PREFIX}services${DOMAIN_SUFFIX}:${HTTP_PORT}/viewer
+      - VIEWER_URL_PREFIX_SECURE=http://${DOMAIN_PREFIX}secure-services${DOMAIN_SUFFIX}:${HTTP_PORT}/viewer
+      - VIEWER_URL_PREFIX_WMSONLY=http://${DOMAIN_PREFIX}wmsonly-services${DOMAIN_SUFFIX}:${HTTP_PORT}/viewer
+      - TRUSTED_HEADER=GeoPublisher-trusted
+      - METADATA_HOST=${DOMAIN_PREFIX}metadata${DOMAIN_SUFFIX}:${HTTP_PORT}
+      - JAVA_OPTS=-Xmx128M -Duser.timezone=${TIME_ZONE}
+      - METADATA_BBOX=${PUB_METADATA_BBOX}
+      - STYLESHEET_PREFIX=/metadata/stylesheets/
+      - DOWNLOAD_URL_DISPLAY=${PUB_DOWNLOAD_URL_DISPLAY}
+      - INCLUDE_SOURCE_DATASET_METADATA=${PUB_INCLUDE_SOURCE_DATASET_METADATA}
+      - LETSENCRYPT_HOST=${DOMAIN_PREFIX}metadata${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    
+  pub.geoserver.staging:
+    extends:
+      file: geo-publisher-commons.yml
+      service: geoserver
+    depends_on:
+      - zookeeper
+    environment:
+      - SERVICE_IDENTIFICATION=geoserver-staging
+      - LETSENCRYPT_HOST=${DOMAIN_PREFIX}staging-services${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    volumes:
+      - pub_service_raster:/var/lib/geo-publisher/raster
+      - pub_geoserver_staging_data:/var/lib/geo-publisher/geoserver
+    
+  pub.viewer.staging:
+    extends:
+      file: geo-publisher-commons.yml
+      service: viewer
+    depends_on:
+      - pub.geoserver.staging
+    environment:
+      - VIEWER_ENVIRONMENT_URL=http://${DOMAIN_PREFIX}staging-services${DOMAIN_SUFFIX}:${HTTP_PORT}/geoserver/
+      - LETSENCRYPT_HOST=${DOMAIN_PREFIX}staging-services${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    links:
+      - nginx_proxy:${DOMAIN_PREFIX}staging-services${DOMAIN_SUFFIX}
+
+  pub.geoserver.public:
+    extends:
+      file: geo-publisher-commons.yml
+      service: geoserver
+    depends_on:
+      - zookeeper    
+    environment:
+      - SERVICE_IDENTIFICATION=geoserver-public
+      - LETSENCRYPT_HOST=${DOMAIN_PREFIX}services${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    volumes:
+      - pub_service_raster:/var/lib/geo-publisher/raster
+      - pub_geoserver_public_data:/var/lib/geo-publisher/geoserver
+    
+  pub.viewer.public:
+    extends:
+      file: geo-publisher-commons.yml
+      service: viewer
+    depends_on:
+      - pub.geoserver.public
+    environment:
+      - VIEWER_ENVIRONMENT_URL=http://${DOMAIN_PREFIX}services${DOMAIN_SUFFIX}:${HTTP_PORT}/geoserver/
+      - LETSENCRYPT_HOST=${DOMAIN_PREFIX}services${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    links:
+      - nginx_proxy:${DOMAIN_PREFIX}services${DOMAIN_SUFFIX}
+      
+  pub.geoserver.secure:
+    extends:
+      file: geo-publisher-commons.yml
+      service: geoserver
+    depends_on:
+      - zookeeper
+    environment:
+      - SERVICE_IDENTIFICATION=geoserver-secure
+      - PROXY_BASE_URL=https://${DOMAIN_PREFIX}secure-services${DOMAIN_SUFFIX}:${HTTPS_PORT}/geoserver/
+      - LETSENCRYPT_HOST=${DOMAIN_PREFIX}secure-services${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    volumes:
+      - pub_service_raster:/var/lib/geo-publisher/raster
+      - pub_geoserver_secure_data:/var/lib/geo-publisher/geoserver
+    
+  pub.viewer.secure:
+    extends:
+      file: geo-publisher-commons.yml
+      service: viewer
+    depends_on:
+      - pub.geoserver.secure
+    environment:
+      - VIEWER_ENVIRONMENT_URL=https://${DOMAIN_PREFIX}secure-services${DOMAIN_SUFFIX}:${HTTPS_PORT}/geoserver/
+      - LETSENCRYPT_HOST=${DOMAIN_PREFIX}secure-services${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    links:
+      - nginx_proxy:${DOMAIN_PREFIX}secure-services${DOMAIN_SUFFIX}
+      
+  pub.geoserver.wmsonly:
+    extends:
+      file: geo-publisher-commons.yml
+      service: geoserver
+    depends_on:
+      - zookeeper
+    environment:
+      - SERVICE_IDENTIFICATION=geoserver-wmsonly
+      - ENABLE_SERVICES=WMS
+      - LETSENCRYPT_HOST=${DOMAIN_PREFIX}wmsonly-services${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    volumes:
+      - pub_service_raster:/var/lib/geo-publisher/raster
+      - pub_geoserver_wmsonly_data:/var/lib/geo-publisher/geoserver
+    
+  pub.viewer.wmsonly:
+    extends:
+      file: geo-publisher-commons.yml
+      service: viewer
+    depends_on:
+      - pub.geoserver.wmsonly
+    environment:
+      - VIEWER_ENVIRONMENT_URL=http://${DOMAIN_PREFIX}wmsonly-services${DOMAIN_SUFFIX}:${HTTP_PORT}/geoserver/
+      - LETSENCRYPT_HOST=${DOMAIN_PREFIX}wmsonly-services${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    links:
+      - nginx_proxy:${DOMAIN_PREFIX}wmsonly-services${DOMAIN_SUFFIX}
+
+networks:
+  default:
+    external:
+      name: gdi

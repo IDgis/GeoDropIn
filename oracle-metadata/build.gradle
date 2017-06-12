@@ -1,0 +1,62 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:3.0.7'
+    }
+}
+
+import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+mainClassName = 'nl.idgis.geodropin.oracle.metadata.Inserter'
+
+repositories {
+	mavenCentral ()
+}
+
+dependencies {
+	compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+	compile group: 'org.springframework', name: 'spring-jdbc', version: '4.3.8.RELEASE'
+	compile files('libs/ojdbc7.jar')
+}
+
+docker {
+    url = System.env.DOCKER_HOST
+    certPath = new File(System.env.DOCKER_CERT_PATH)
+}
+
+task unpackTar(type: Copy) {
+	dependsOn distTar
+	
+	from tarTree(distTar.archivePath)
+	into "build/docker"
+}
+
+task copyContext(type: Copy) {
+	from 'src/main/docker'
+	into "build/docker"
+}
+
+task createDockerfile(type: Dockerfile) {
+	destFile = file("${project.buildDir}/docker/Dockerfile")
+	from 'azul/zulu-openjdk'
+	copyFile "oracle-metadata", '/opt'
+	runCommand 'chmod +x /opt/bin/oracle-metadata'
+	defaultCommand "/opt/bin/oracle-metadata"
+}
+
+task buildImage(type: DockerBuildImage) {
+	dependsOn createDockerfile, unpackTar, copyContext
+	
+	inputDir = file("build/docker")
+	tag = "idgis/oracle-metadata"
+}
