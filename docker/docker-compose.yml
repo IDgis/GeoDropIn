@@ -14,6 +14,7 @@ volumes:
   pub_db_logs:
   pub_service_raster:
   pub_service_sslconf:
+  pub_provider_conf:
   pub_geoserver_staging_data:
   pub_geoserver_public_data:
   pub_geoserver_secure_data: 
@@ -67,8 +68,8 @@ services:
     image: idgis/oracle-metadata
   
   gdi.oracle:
+    build: oracle
     restart: always
-    image: wnameless/oracle-xe-11g:latest
     ports:
       - "${IP_ADDR}:49160:22"
       - "${IP_ADDR}:49161:1521"
@@ -112,6 +113,14 @@ services:
       - ENVIRONMENT_0=geoserver-public,Publieke services,false,http://${DOMAIN_PREFIX}services${DOMAIN_SUFFIX}:${HTTP_PORT}/geoserver/,false
       - ENVIRONMENT_1=geoserver-secure,Beveiligde services,true,https://${DOMAIN_PREFIX}secure-services${DOMAIN_SUFFIX}:${HTTPS_PORT}/geoserver/,false
       - ENVIRONMENT_2=geoserver-wmsonly,Alleen WMS services,false,http://${DOMAIN_PREFIX}wmsonly-services${DOMAIN_SUFFIX}:${HTTP_PORT}/geoserver/,true
+      
+  pub.provider:
+    image: idgis/geopublisher_provider:${PUB_VERSION}
+    restart: always
+    environment:
+      - JAVA_OPTS=-Xmx256M -Duser.timezone=${TIME_ZONE}
+    volumes:
+      - pub_provider_conf:/etc/geo-publisher/provider
     
   pub.service:
     image: idgis/geopublisher_service:${PUB_VERSION}
