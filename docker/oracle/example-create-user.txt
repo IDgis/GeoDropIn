@@ -1,0 +1,5 @@
+create user rijssenholten identified by rijssenholten default tablespace users temporary tablespace temp;
+grant connect to rijssenholten;
+grant resource to rijssenholten;
+grant unlimited tablespace to rijssenholten;
+grant select on SDE.dummy to rijssenholten;

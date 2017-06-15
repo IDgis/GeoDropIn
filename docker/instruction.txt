@@ -1,0 +1,8 @@
+Files to be manually changed:
+
+tnsnames.ora in ogr2ogr container
+provider.conf in provider container
+
+Files to be manually added:
+
+trusted.jks & private.jks in service container

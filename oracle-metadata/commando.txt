@@ -1,0 +1,1 @@
+docker run -e "JAVA_OPTS=-Duser.timezone=CET" --rm --network [network] --link gdi_nginx_proxy_1:[server_name_geodropin_app] idgis/oracle-metadata /opt/bin/oracle-metadata [user] [geodropin_id] [physicalname]

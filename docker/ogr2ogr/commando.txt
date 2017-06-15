@@ -1,0 +1,1 @@
+ogr2ogr -f OCI OCI:[user]/[password]@[sid]:[dummy_table] path/to/shape.shp -nlt [type_vector] -lco SRID=[srid] -lco PRECISION=NO -lco DIM=2
