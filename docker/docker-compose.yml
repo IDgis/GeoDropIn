@@ -27,6 +27,10 @@ services:
     ports:
       - "${IP_ADDR}:${HTTP_PORT}:${HTTP_PORT}"
       - "${IP_ADDR}:${HTTPS_PORT}:${HTTPS_PORT}"
+    environment:
+      - CLIENT=${CLIENT}
+      - STST_CONFIDENTIAL_CHECK=${STST_CONFIDENTIAL_CHECK}
+      - STST_PROCLAIMER_DISPLAY=${STST_PROCLAIMER_DISPLAY}
     volumes:
       - base_certs:/etc/nginx/certs:ro
       - base_vhost:/etc/nginx/vhost.d

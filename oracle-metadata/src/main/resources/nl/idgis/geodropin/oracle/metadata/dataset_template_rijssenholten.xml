@@ -282,6 +282,10 @@
             </distributionOrderProcess>
           </MD_Distributor>
         </distributor>
+        <transferOptions>
+          <MD_DigitalTransferOptions>
+          </MD_DigitalTransferOptions>
+        </transferOptions>
       </MD_Distribution>
     </distributionInfo>
     <dataQualityInfo>
