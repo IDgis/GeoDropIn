@@ -21,7 +21,7 @@ volumes:
   pub_geoserver_wmsonly_data:
 
 services:
-  nginx_proxy:
+  proxy:
     restart: always
     build: nginx
     ports:
@@ -37,11 +37,11 @@ services:
       - base_html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
 
-  nginx_letsencrypt:
+  letsencrypt:
     restart: always
     image: jrcs/letsencrypt-nginx-proxy-companion
     volumes_from:
-      - nginx_proxy
+      - proxy
     volumes:
       - base_certs:/etc/nginx/certs:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -91,7 +91,7 @@ services:
       - geodropin_shapefiles:/var/lib/shapefiles
       - geodropin_tnsadmin:/opt/instantclient_12_1
     links:
-      - nginx_proxy:${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}
+      - proxy:${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}
       
   pub.db:
     image: idgis/geopublisher_database:${PUB_VERSION}
@@ -213,6 +213,7 @@ services:
       - SERVICE_IDENTIFICATION=geoserver-staging
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}staging-services${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+      - PROXY_BASE_URL=http://services.geodropin.local/geoserver/
     volumes:
       - pub_service_raster:/var/lib/geo-publisher/raster
       - pub_geoserver_staging_data:/var/lib/geo-publisher/geoserver
@@ -228,7 +229,7 @@ services:
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}staging-services${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
     links:
-      - nginx_proxy:${DOMAIN_PREFIX}staging-services${DOMAIN_SUFFIX}
+      - proxy:${DOMAIN_PREFIX}staging-services${DOMAIN_SUFFIX}
 
   pub.geoserver.public:
     extends:
@@ -240,6 +241,7 @@ services:
       - SERVICE_IDENTIFICATION=geoserver-public
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}services${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+      - PROXY_BASE_URL=http://services.geodropin.local/geoserver/
     volumes:
       - pub_service_raster:/var/lib/geo-publisher/raster
       - pub_geoserver_public_data:/var/lib/geo-publisher/geoserver
@@ -255,7 +257,7 @@ services:
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}services${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
     links:
-      - nginx_proxy:${DOMAIN_PREFIX}services${DOMAIN_SUFFIX}
+      - proxy:${DOMAIN_PREFIX}services${DOMAIN_SUFFIX}
       
   pub.geoserver.secure:
     extends:
@@ -283,7 +285,7 @@ services:
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}secure-services${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
     links:
-      - nginx_proxy:${DOMAIN_PREFIX}secure-services${DOMAIN_SUFFIX}
+      - proxy:${DOMAIN_PREFIX}secure-services${DOMAIN_SUFFIX}
       
   pub.geoserver.wmsonly:
     extends:
@@ -293,6 +295,7 @@ services:
       - zookeeper
     environment:
       - SERVICE_IDENTIFICATION=geoserver-wmsonly
+      - PROXY_BASE_URL=http://${DOMAIN_PREFIX}wmsonly-services${DOMAIN_SUFFIX}:${HTTP_PORT}/geoserver/
       - ENABLE_SERVICES=WMS
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}wmsonly-services${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
@@ -311,7 +314,7 @@ services:
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}wmsonly-services${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
     links:
-      - nginx_proxy:${DOMAIN_PREFIX}wmsonly-services${DOMAIN_SUFFIX}
+      - proxy:${DOMAIN_PREFIX}wmsonly-services${DOMAIN_SUFFIX}
 
 networks:
   default:
