@@ -26,8 +26,9 @@ import org.json.simple.parser.JSONParser;
 
 public class Inserter {
 	
-	private static final Logger LOGGER = Logger.getLogger(Inserter.class.getName());
 	private static final String ITEM_TYPE = "{70737809-852C-4A03-9E22-2CECEA5B9BFA}";
+	
+	private final String typeStatement;
 	
 	private final String datasetUuid;
 	private final String metadataUuid;
@@ -37,19 +38,31 @@ public class Inserter {
 	private String datasetDate;
 	private String metadataDate;
 	
-	public Inserter(String geodropinId) {
+	public Inserter(String geodropinId, String typeStatement) {
 		this.geodropinId = geodropinId;
+		this.typeStatement = typeStatement;
 		
-		this.metadataUuid = UUID.randomUUID().toString();
-		this.datasetUuid = UUID.randomUUID().toString();
+		if("insert".equals(this.typeStatement)) {
+			this.metadataUuid = UUID.randomUUID().toString();
+			this.datasetUuid = UUID.randomUUID().toString();
+		} else {
+			this.metadataUuid = null;
+			this.datasetUuid = null;
+		}
+		
 	}
 	
 	public static void main(String[] args) throws Exception {
-		String client = args[0];
-		String geodropinId = args[1];
-		String physicalName = args[2];
+		String typeStatement = args[0];
+		if(!"insert".equals(typeStatement) && !"update".equals(typeStatement)) {
+			throw new Exception("statement must be either insert or update");
+		}
 		
-		Inserter t = new Inserter(geodropinId);
+		String client = args[1];
+		String geodropinId = args[2];
+		String physicalName = args[3];
+		
+		Inserter t = new Inserter(geodropinId, typeStatement);
 		t.fetchValuesFromJson();
 		
 		InputStream inputStream = Inserter.class
@@ -59,29 +72,54 @@ public class Inserter {
 		
 		try (BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream))) {
             String content = buffer.lines().collect(Collectors.joining("\n"));
-            result = content
-            		.replaceAll("@metadata_uuid@", t.metadataUuid)
-            		.replaceAll("@metadata_date@", t.metadataDate)
-            		.replaceAll("@dataset_uuid@", t.datasetUuid)
-            		.replaceAll("@title@", t.title)
-            		.replaceAll("@description@", t.description)
-            		.replaceAll("@dataset_date@", t.datasetDate);
+            
+            if("insert".equals(t.typeStatement)) {
+            	result = content
+                		.replaceAll("@metadata_uuid@", t.metadataUuid)
+                		.replaceAll("@metadata_date@", t.metadataDate)
+                		.replaceAll("@dataset_uuid@", t.datasetUuid)
+                		.replaceAll("@title@", t.title)
+                		.replaceAll("@description@", t.description)
+                		.replaceAll("@dataset_date@", t.datasetDate);
+            } else {
+            	result = content
+                		.replaceAll("@metadata_date@", t.metadataDate)
+                		.replaceAll("@title@", t.title)
+                		.replaceAll("@description@", t.description)
+                		.replaceAll("@dataset_date@", t.datasetDate);
+            }
+            
         }
 		
 		if(result != null) {
 			Class.forName("oracle.jdbc.driver.OracleDriver");
 			Connection connection = DriverManager
-					.getConnection("jdbc:oracle:thin:@192.168.99.100:49161:XE", "SDE", "SDE");
+					.getConnection("jdbc:oracle:thin:@" + 
+							System.getenv("DB_IP") + ":" + 
+							System.getenv("DB_PORT") + ":" + 
+							System.getenv("DB_SID"), "SDE", "SDE");
 			
-			String sql = "insert into SDE.GDB_ITEMS_VW values (?, ?, ?, ?, ?)";
-			PreparedStatement stmt = connection.prepareStatement(sql);
-			stmt.setString(1,  "{" + UUID.randomUUID().toString() + "}");
-			stmt.setString(2,  t.geodropinId);
-			stmt.setString(3,  ITEM_TYPE);
-			stmt.setString(4,  physicalName);
-			stmt.setString(5,  result);
-			stmt.execute();
-			stmt.close();
+			String sql;
+			
+			if("insert".equals(t.typeStatement)) {
+				sql = "insert into SDE.GDB_ITEMS_VW values (?, ?, ?, ?, ?)";
+				PreparedStatement stmt = connection.prepareStatement(sql);
+				stmt.setString(1,  "{" + UUID.randomUUID().toString() + "}");
+				stmt.setString(2,  t.geodropinId);
+				stmt.setString(3,  ITEM_TYPE);
+				stmt.setString(4,  physicalName);
+				stmt.setString(5,  result);
+				stmt.execute();
+				stmt.close();
+			} else {
+				sql = "update SDE.GDB_ITEMS_VW set GEODROPINID = ?, PHYSICALNAME = ?, DOCUMENTATION = ?";
+				PreparedStatement stmt = connection.prepareStatement(sql);
+				stmt.setString(1,  t.geodropinId);
+				stmt.setString(2,  physicalName);
+				stmt.setString(3,  result);
+				stmt.execute();
+				stmt.close();
+			}
 			
 			connection.close();
 		}
@@ -89,7 +127,7 @@ public class Inserter {
 	
 	public void fetchValuesFromJson() throws Exception {
 		HttpURLConnection connection = (HttpURLConnection) 
-				new URL("http://geodropin.geodropin.local/json/" + this.geodropinId).openConnection();
+				new URL(System.getenv("GEODROPIN_HOST") + "/json/" + this.geodropinId).openConnection();
 		InputStream datasetInfo = connection.getInputStream();
 		try (BufferedReader buffer = new BufferedReader(new InputStreamReader(datasetInfo, "UTF-8"))) {
 			String json = buffer.lines().collect(Collectors.joining("\n"));
