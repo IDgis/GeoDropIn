@@ -1,1 +1,1 @@
-docker run -e "JAVA_OPTS=-Duser.timezone=CET" --rm --network [network] --link gdi_nginx_proxy_1:[server_name_geodropin_app] idgis/oracle-metadata /opt/bin/oracle-metadata [user] [geodropin_id] [physicalname]
+docker run -e "JAVA_OPTS=-Xmx32M -Duser.timezone=CET" -e "GEODROPIN_HOST=[host_geodropin_app]" -e "DB_IP=[ip_oracle_database]" -e "DB_PORT=[port_oracle_database]" -e "DB_SID=[sid_oracle_database]" --rm --network [network] --link gdi_proxy_1:[server_name_geodropin_app] idgis/oracle-metadata /opt/bin/oracle-metadata [insert/update] [user] [geodropin_id] [physicalname]
