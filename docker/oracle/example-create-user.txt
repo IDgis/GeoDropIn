@@ -3,3 +3,16 @@ grant connect to rijssenholten;
 grant resource to rijssenholten;
 grant unlimited tablespace to rijssenholten;
 grant select on SDE.dummy to rijssenholten;
+
+alter user rijssenholten grant connect through system;
+connect system[rijssenholten]/oracle
+
+create table dummy as (select * from dual);
+create table GDB_ITEMS_VW (
+	UUID varchar(38) not null, 
+	GEODROPINID varchar(38) not null, 
+	TYPE varchar(38) not null, 
+	PHYSICALNAME nvarchar2(452) not null, 
+	DOCUMENTATION clob not null, 
+	constraint pk_uuid primary key(UUID), 
+	constraint geodropinid_unique unique(GEODROPINID));
