@@ -97,12 +97,14 @@ public class Inserter {
 					.getConnection("jdbc:oracle:thin:@" + 
 							System.getenv("DB_IP") + ":" + 
 							System.getenv("DB_PORT") + ":" + 
-							System.getenv("DB_SID"), "SDE", "SDE");
+							System.getenv("DB_SID"), 
+							System.getenv("DB_USER"), 
+							System.getenv("DB_PASSWORD"));
 			
 			String sql;
 			
 			if("insert".equals(t.typeStatement)) {
-				sql = "insert into SDE.GDB_ITEMS_VW values (?, ?, ?, ?, ?)";
+				sql = "insert into GDB_ITEMS_VW values (?, ?, ?, ?, ?)";
 				PreparedStatement stmt = connection.prepareStatement(sql);
 				stmt.setString(1,  "{" + UUID.randomUUID().toString() + "}");
 				stmt.setString(2,  t.geodropinId);
@@ -112,7 +114,7 @@ public class Inserter {
 				stmt.execute();
 				stmt.close();
 			} else {
-				sql = "update SDE.GDB_ITEMS_VW set GEODROPINID = ?, PHYSICALNAME = ?, DOCUMENTATION = ?";
+				sql = "update GDB_ITEMS_VW set GEODROPINID = ?, PHYSICALNAME = ?, DOCUMENTATION = ?";
 				PreparedStatement stmt = connection.prepareStatement(sql);
 				stmt.setString(1,  t.geodropinId);
 				stmt.setString(2,  physicalName);
