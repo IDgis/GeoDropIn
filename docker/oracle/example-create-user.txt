@@ -2,7 +2,6 @@ create user rijssenholten identified by rijssenholten default tablespace users t
 grant connect to rijssenholten;
 grant resource to rijssenholten;
 grant unlimited tablespace to rijssenholten;
-grant select on SDE.dummy to rijssenholten;
 
 alter user rijssenholten grant connect through system;
 connect system[rijssenholten]/oracle
