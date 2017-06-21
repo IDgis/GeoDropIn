@@ -1,4 +1,4 @@
 node_modules
 /bin/
 .project
-docker/deploy.sh
+docker/*_deploy.sh
