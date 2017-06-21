@@ -14,14 +14,13 @@ services:
       - PG_USER=publisher
       - PG_PASSWORD=${PUB_PG_PASSWORD}
       - ZOOKEEPER_HOSTS=zookeeper
-      - SERVICE_DOMAIN=${DOMAIN_PREFIX}staging-services${DOMAIN_SUFFIX}
+      - SERVICE_DOMAIN=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}
       - JAVA_OPTS=-Xmx1g -Duser.timezone=${TIME_ZONE}
       
   viewer:
     image: idgis/geopublisher_viewer:${PUB_VIEWER_VERSION}
     restart: always
     environment:
-      - VIEWER_CONTEXT=/viewer
       - VIEWER_USERNAME=admin
       - VIEWER_PASSWORD=${PUB_GEOSERVER_PASSWORD}
       - VIEWER_CENTERS=${PUB_VIEWER_CENTERS}
