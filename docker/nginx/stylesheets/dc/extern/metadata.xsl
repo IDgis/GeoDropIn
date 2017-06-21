@@ -91,11 +91,6 @@
 						margin-bottom:20px;
 					}
 					
-					.proclaimer {
-						margin-top:40px;
-					}
-					
-					
 					.inspringen {
 						padding-left:25px;
 					}
@@ -197,11 +192,7 @@
 				 </script>
 			</head>
 			<body>
-				<div class="logo">
-					<a href="http://www.overijssel.nl">
-						<img src="@logo.png@" class="img-responsive" alt="Responsive image"></img>
-					</a>
-				</div>
+				<div class="logo"></div>
 				<div class="titelbalk">
 					<h1 class="titel">Beschrijving statische kaarten Geoportaal</h1>
 				</div>
@@ -365,15 +356,6 @@
 			</div>
 			<div class="blok">
 				<strong>XML: </strong><a id="xmlLinkNoStyle" target="_blank"></a>
-			</div>
-			
-			<div class="proclaimer">
-				<p class="proclaimer-optional">Deze gegevens worden beschikbaar gesteld door het Geoportaal van @client@: <a target="_blank" href="@portal_url@">@portal_url@</a></p>
-				<p class="proclaimer-optional">In het Geoportaal staan actuele kaarten en beschrijvingen van die kaarten.</p>
-				<p class="proclaimer-optional">Ter referentie zijn vaak ook nog oudere kaarten beschikbaar gesteld.</p>
-				<p class="proclaimer-optional">@open_data_prefix@ stelt zoveel mogelijk kaarten als "open data" voor iedereen beschikbaar.</p>
-				<p class="proclaimer-optional">Heeft u suggesties of vragen? Stuur dan een email naar <a href="mailto:@client_email@">@client_email@</a></p>
-				<p class="proclaimer-optional">Zie proclaimer: <a target="_blank" href="@client_proclaimer@">@client_proclaimer@</a></p>
 			</div>
 		</div>
 		<!-- <xsl:apply-templates select="gmd:fileIdentifier"/> -->

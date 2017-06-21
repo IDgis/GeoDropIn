@@ -92,11 +92,6 @@
 						margin-bottom:20px;
 					}
 					
-					.proclaimer {
-						margin-top:40px;
-					}
-					
-					
 					.inspringen {
 						padding-left:25px;
 					}
@@ -198,11 +193,7 @@
 				 </script>
 			</head>
 			<body>
-				<div class="logo">
-					<a href="http://www.overijssel.nl">
-						<img src="@logo.png@" class="img-responsive" alt="Responsive image"></img>
-					</a>
-				</div>
+				<div class="logo"></div>
 				<div class="titelbalk">
 					<h1 class="titel">Bestandsbeschrijving Geoportaal</h1>
 				</div>
@@ -435,15 +426,6 @@
 				<xsl:apply-templates select="gmd:distributionInfo/gmd:MD_Distribution/gmd:distributor/gmd:MD_Distributor/gmd:distributionOrderProcess/gmd:MD_StandardOrderProcess/gmd:turnaround/gco:CharacterString"/>
 				<xsl:apply-templates select="gmd:distributionInfo/gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:unitsOfDistribution/gco:CharacterString"/>
 				<xsl:apply-templates select="gmd:distributionInfo/gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:offLine/gmd:MD_Medium/gmd:name/gmd:MD_MediumNameCode/@codeListValue"/>
-			</div>
-			
-			<div class="proclaimer">
-				<p class="proclaimer-optional">Deze gegevens worden beschikbaar gesteld door het Geoportaal van @client@: <a target="_blank" href="@portal_url@">@portal_url@</a></p>
-				<p class="proclaimer-optional">In het Geoportaal staan actuele kaarten en beschrijvingen van die kaarten.</p>
-				<p class="proclaimer-optional">Ter referentie zijn vaak ook nog oudere kaarten beschikbaar gesteld.</p>
-				<p class="proclaimer-optional">@open_data_prefix@ stelt zoveel mogelijk kaarten als "open data" voor iedereen beschikbaar.</p>
-				<p class="proclaimer-optional">Heeft u suggesties of vragen? Stuur dan een email naar <a href="mailto:@client_email@">@client_email@</a></p>
-				<p class="proclaimer-optional">Zie proclaimer: <a target="_blank" href="@client_proclaimer@">@client_proclaimer@</a></p>
 			</div>
 		</div>
 		
@@ -1353,7 +1335,7 @@
 		  	</xsl:choose>
   		</xsl:variable>
   		<xsl:choose>
-  			<xsl:when test = "@confidential_check@">
+  			<xsl:when test = "not(count(../../../../../gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation[gco:CharacterString = 'Downloadable data']) > 0) and (gmd:CI_OnlineResource/gmd:protocol/gco:CharacterString = 'download' or gmd:CI_OnlineResource/gmd:protocol/gco:CharacterString = 'OGC:WFS')">
   				<!-- do nothing -->
   			</xsl:when>
   			<xsl:otherwise>
