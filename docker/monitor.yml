@@ -1,0 +1,16 @@
+version: '2'
+  
+services:
+  pub.monitor.staging:
+    extends:
+      file: monitor-commons.yml
+      service: pub.monitor
+    command: staging 
+    environment:
+      - STAGING_ENVIRONMENT_URL=http://${DOMAIN_PREFIX}${PUB_DOMAIN_SUFFIX}:${HTTP_PORT}/staging/geoserver/
+
+  pub.monitor.public:
+    extends:
+      file: monitor-commons.yml
+      service: pub.monitor
+    command: published geoserver-public

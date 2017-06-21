@@ -4,30 +4,83 @@ volumes:
   base_certs:
   base_vhost:
   base_html:
+  geodropinfiles:
+  geodropinlogos:
+  mongo_db:
+  oracle_db:
+  ogr2ogr_shapefiles:
+  ogr2ogr_tnsadmin:
 
 services:
-  nginx-proxy:
+  proxy:
     restart: always
-    image: jwilder/nginx-proxy
+    build: nginx
     ports:
-      - "136.243.17.245:80:80"
-      - "136.243.17.245:443:443"
+      - "${IP_ADDR}:${HTTP_PORT}:${HTTP_PORT}"
+      - "${IP_ADDR}:${HTTPS_PORT}:${HTTPS_PORT}"
     volumes:
       - base_certs:/etc/nginx/certs:ro
       - base_vhost:/etc/nginx/vhost.d
       - base_html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
 
-  nginx-letsencrypt:
+  letsencrypt:
     restart: always
     image: jrcs/letsencrypt-nginx-proxy-companion
     volumes_from:
-      - nginx-proxy
+      - proxy
     volumes:
       - base_certs:/etc/nginx/certs:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
+  
+  zookeeper:
+    image: jplock/zookeeper
+    restart: always
+    
+  gdi.web:
+    restart: always
+    image: idgis/geodropin:${GDI_VERSION}
+    environment:
+      - MONGO_URL=mongodb://gdi.db/geodropin
+      - ROOT_URL=http://${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}:${HTTP_PORT}
+      - LETSENCRYPT_HOST=${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    volumes:
+      - geodropinfiles:/var/lib/geodropinfiles
+      - geodropinlogos:/var/lib/geodropinlogos
+
+  gdi.db:
+    restart: always
+    image: mongo:3.2.11
+    volumes:
+      - mongo_db:/data/db
+      
+  gdi.oracle.metadata:
+    image: idgis/oracle-metadata
+  
+  gdi.oracle:
+    build: oracle
+    restart: always
+    ports:
+      - "${IP_ADDR}:49160:22"
+      - "${IP_ADDR}:49161:1521"
+    volumes:
+      - oracle_db:/u01/app/oracle
+  
+  gdi.ogr2ogr:
+    build: ogr2ogr
+    tty: true
+    environment:
+      - LD_LIBRARY_PATH=/opt/instantclient_12_1
+      - TNS_ADMIN=/opt/instantclient_12_1
+      - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/instantclient_12_1
+    volumes:
+      - ogr2ogr_shapefiles:/var/lib/shapefiles
+      - ogr2ogr_tnsadmin:/opt/instantclient_12_1
+    links:
+      - proxy:${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}
 
 networks:
   default:
     external:
-      name: gdi_proxy
+      name: gdi

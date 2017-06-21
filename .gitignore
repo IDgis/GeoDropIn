@@ -1,5 +1,4 @@
 node_modules
 /bin/
 .project
-/docker/deploy_base.sh
-/docker/deploy_gdi.sh
+docker/*_deploy.sh
