@@ -1,9 +1,0 @@
-docker exec -it gdi_gdi.ogr2ogr_1 bash
-cd /var/lib/shapefiles/
-curl -O -J [url]
-unzip [bestand] -d [map]
-rm [bestand]
-
-[ogr2ogr commando uitvoeren]
-
-rm -r [map]
