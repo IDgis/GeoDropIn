@@ -75,7 +75,7 @@ create table GDB_ITEMS_VW (
 - Execute ``curl -O -J [url_to_shapefile]``
 - Execute ``unzip [file_zip] -d [map]`` (this is a map which will be created and which will contain the files of the zip)
 - Execute ``rm [file_zip]``
-- Execute ``ogr2ogr -f OCI OCI:[user_oracle]/[password_oracle]@[sid_oracle]:[dummy_table_oracle] path/to/shape.shp -nlt [type_vector] -lco SRID=[srid] -lco PRECISION=NO -lco DIM=2`` (type_vecor is either MULTIPOINT, MULTIPOLYGON or MULTILINESTRING)
+- Execute ``ogr2ogr -f OCI OCI:[user_oracle]/[password_oracle]@oracle-xec:[user_oracle].dummy path/to/shape.shp -nlt [type_vector] -lco SRID=[srid] -lco PRECISION=NO -lco DIM=2`` (type_vecor is either MULTIPOINT, MULTIPOLYGON or MULTILINESTRING)
 - Execute ``rm -r [map]``
 
 ## Inserting or updating a metadata record in Oracle
