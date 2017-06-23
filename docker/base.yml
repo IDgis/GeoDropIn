@@ -56,19 +56,16 @@ services:
     volumes:
       - mongo_db:/data/db
       
-  gdi.oracle.metadata:
+  oracle.metadata:
     image: idgis/oracle-metadata
   
-  gdi.oracle:
+  oracle:
     build: oracle
     restart: always
-    ports:
-      - "${IP_ADDR}:49160:22"
-      - "${IP_ADDR}:49161:1521"
     volumes:
       - oracle_db:/u01/app/oracle
   
-  gdi.ogr2ogr:
+  ogr2ogr:
     build: ogr2ogr
     tty: true
     environment:
@@ -78,8 +75,6 @@ services:
     volumes:
       - ogr2ogr_shapefiles:/var/lib/shapefiles
       - ogr2ogr_tnsadmin:/opt/instantclient_12_1
-    links:
-      - proxy:${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}
 
 networks:
   default:
