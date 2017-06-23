@@ -46,8 +46,6 @@ services:
     restart: always
     depends_on:
       - pub.db
-    ports:
-      - "${IP_ADDR}:4242:4242"
     environment:
       - PG_HOST=pub.db
       - PG_PORT=5432
