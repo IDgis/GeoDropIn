@@ -70,7 +70,7 @@ create table GDB_ITEMS_VW (
 
 ## Inserting a shapefile in Oracle
 
-- Go into ogr2ogr container with ``docker exec -it gdi_gdi.ogr2ogr_1 bash``
+- Go into ogr2ogr container with ``docker exec -it gdi_ogr2ogr_1 bash``
 - Execute ``cd /var/lib/shapefiles/``
 - Execute ``curl -O -J [url_to_shapefile]``
 - Execute ``unzip [file_zip] -d [map]`` (this is a map which will be created and which will contain the files of the zip)
@@ -80,6 +80,6 @@ create table GDB_ITEMS_VW (
 
 ## Inserting or updating a metadata record in Oracle
 
-``docker run -e "JAVA_OPTS=-Xmx32M -Duser.timezone=Europe/Amsterdam" -e "GEODROPIN_HOST=[host_geodropin_app]" -e "DB_IP=[ip_oracle_database]" -e "DB_PORT=[port_oracle_database]" -e "DB_SID=[sid_oracle_database]" -e "DB_USER=[user_oracle_database]" -e "DB_PASSWORD=[password_oracle_database]" --rm --network gdi --link gdi_proxy_1:[server_name_geodropin_app] idgis/oracle-metadata /opt/bin/oracle-metadata [insert/update] [user] [geodropin_id] [physicalname]``
+``docker run -e "JAVA_OPTS=-Xmx32M -Duser.timezone=Europe/Amsterdam" -e "GEODROPIN_HOST=[host_geodropin_app]" -e "DB_IP=gdi_oracle_1" -e "DB_PORT=1521" -e "DB_SID=XE" -e "DB_USER=[user_oracle_database]" -e "DB_PASSWORD=[password_oracle_database]" --rm --network gdi --link gdi_proxy_1:[server_name_geodropin_app] idgis/oracle-metadata /opt/bin/oracle-metadata [insert/update] [user] [geodropin_id] [physicalname]``
 
 [user] should match the template in oracle-metadata app: ``dataset_template_[user].xml``

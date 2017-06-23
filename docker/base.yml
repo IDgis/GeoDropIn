@@ -56,16 +56,16 @@ services:
     volumes:
       - mongo_db:/data/db
       
-  gdi.oracle.metadata:
+  oracle.metadata:
     image: idgis/oracle-metadata
   
-  gdi.oracle:
+  oracle:
     build: oracle
     restart: always
     volumes:
       - oracle_db:/u01/app/oracle
   
-  gdi.ogr2ogr:
+  ogr2ogr:
     build: ogr2ogr
     tty: true
     environment:
