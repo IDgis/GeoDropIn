@@ -75,8 +75,6 @@ services:
     volumes:
       - ogr2ogr_shapefiles:/var/lib/shapefiles
       - ogr2ogr_tnsadmin:/opt/instantclient_12_1
-    links:
-      - proxy:${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}
 
 networks:
   default:
