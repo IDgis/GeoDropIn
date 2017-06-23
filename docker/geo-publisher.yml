@@ -139,8 +139,6 @@ services:
       - VIEWER_CONTEXT=/staging/viewer
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
-    external_links:
-      - proxy:${DOMAIN_PREFIX}${DOMAIN_SUFFIX}
 
   pub.geoserver.public:
     extends:
@@ -166,8 +164,6 @@ services:
       - VIEWER_CONTEXT=/public/viewer
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
-    external_links:
-      - proxy:${DOMAIN_PREFIX}${DOMAIN_SUFFIX}
 
 networks:
   default:
