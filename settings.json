@@ -2,5 +2,7 @@
   "public": {
 	  "directoryFiles": "/var/lib/geodropinfiles",
 	  "directoryLogos": "/var/lib/geodropinlogos"
-  }
+  },
+  
+  "email": "geodropin@geopublisher.nl"
 }
