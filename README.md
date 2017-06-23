@@ -15,26 +15,16 @@ Create a common docker network for all docker containers named gdi with ``docker
 - Finally add a logo to the container with: ``docker cp [username].png gdi_gdi.web_1:/var/lib/geodropinlogos``
 - The logo file has to have the same name as the username it belongs to
 
-## Step 3: change provider.conf in provider container - for each user
-
-- Go into provider container with ``docker exec -it [client_prefix]_pub.provider_1 bash``
-- You are already in the right folder
-- Execute ``apt-get update`` and ``apt-get install vim``
-- Execute ``vi provider.conf``
-- Change in provider.conf the database url, the database user, the database password and the harvester host to your liking
-- Save
-- Exit the container
-
-## Step 4: copy jks files in service container - for each user
+## Step 3: copy jks files in service container - for each user
 
 - Execute ``docker cp private.jks [client_prefix]_pub.service_1:/etc/geo-publisher/ssl``
 - Execute ``docker cp trusted.jks [client_prefix]_pub.service_1:/etc/geo-publisher/ssl``
 
-## Step 5: add a conf file for each client in proxy - for each user
+## Step 4: add a conf file for each client in proxy - for each user
 
 In the GeoDropIn folder path ``/docker/nginx/conf`` add a conf file for each client, you can copy and edit the example set bij ``rijssenholten.conf``
 
-## Step 6: create user and related tables (execute this as system) - for each user
+## Step 5: create user and related tables (execute this as system) - for each user
 
 Execute this sql:
 
@@ -58,7 +48,7 @@ create table GDB_ITEMS_VW (
 	constraint geodropinid_unique unique(GEODROPINID));
 ```
 
-## Step 7: add template to oracle-metadata app - for each user
+## Step 6: add template to oracle-metadata app - for each user
 
 - Under ``src/main/resources`` and package ``nl.idgis.geodropin.oracle.metadata`` add a template for each user according to name convention ``dataset_template_[user].xml``
 - Go to GeoDropIn folder path ``/oracle-metadata``
