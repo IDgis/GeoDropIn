@@ -62,9 +62,6 @@ services:
   gdi.oracle:
     build: oracle
     restart: always
-    ports:
-      - "${IP_ADDR}:49160:22"
-      - "${IP_ADDR}:49161:1521"
     volumes:
       - oracle_db:/u01/app/oracle
   
