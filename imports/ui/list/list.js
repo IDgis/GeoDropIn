@@ -36,5 +36,7 @@ Template.list.events({
 		attIds.forEach(function(item) {
 			Attachment.remove({_id: item});
 		});
+		
+		Meteor.call('sendMail', geodataId, 'deleted');
 	}
 });

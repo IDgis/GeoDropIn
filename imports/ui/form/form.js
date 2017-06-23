@@ -141,6 +141,8 @@ AutoForm.addHooks('geodataform', {
 			});
 			
 			CouplingAttData.insert({dataId: dataId, attachmentIds: attachmentIds});
+			
+			Meteor.call('sendMail', dataId, 'inserted');
 		},
 		update: function(error, result) {
 			var attRemove = Session.get('attachmentRemoveIds');
@@ -162,6 +164,8 @@ AutoForm.addHooks('geodataform', {
 			
 			var couplingId = CouplingAttData.findOne({dataId: this.docId})._id;
 			CouplingAttData.update({_id: couplingId}, {$set: {attachmentIds: attIds}});
+			
+			Meteor.call('sendMail', this.docId, 'updated');
 		}
 	},
 	onSuccess: function() {
