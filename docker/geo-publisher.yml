@@ -19,6 +19,8 @@ services:
     volumes:
       - pub_db_data:/var/lib/postgresql
       - pub_db_logs:/var/log/postgresql
+    networks:
+      - publisher
       
   pub.db.init:
     build: pub-db-init
@@ -32,6 +34,8 @@ services:
       - PG_PASSWORD=${PUB_PG_PASSWORD}
       - DATASOURCE_0=geodropin-vector,Vectordata
       - ENVIRONMENT_0=geoserver-public,Publieke services,false,http://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTP_PORT}/public/geoserver/,false
+    networks:
+      - publisher
       
   pub.provider:
     image: idgis/geopublisher_provider:${PUB_VERSION}
@@ -40,6 +44,9 @@ services:
       - JAVA_OPTS=-Xmx256M -Duser.timezone=${TIME_ZONE}
     volumes:
       - pub_provider_conf:/etc/geo-publisher/provider
+    networks:
+      - gdi-base
+      - publisher
     
   pub.service:
     image: idgis/geopublisher_service:${PUB_VERSION}
@@ -68,6 +75,8 @@ services:
     volumes:
       - pub_service_raster:/var/lib/geo-publisher/raster
       - pub_service_sslconf:/etc/geo-publisher/ssl
+    networks:
+      - publisher
     
   pub.web:
     image: idgis/geopublisher_web:${PUB_VERSION}
@@ -90,6 +99,9 @@ services:
       - METADATA_STYLESHEET_URL_PREFIX=/metadata/stylesheets/
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    networks:
+      - gdi-base
+      - publisher
     
   pub.metadata:
     image: idgis/geopublisher_metadata:${PUB_VERSION}
@@ -114,6 +126,9 @@ services:
       - INCLUDE_SOURCE_DATASET_METADATA=${PUB_INCLUDE_SOURCE_DATASET_METADATA}
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    networks:
+      - gdi-base
+      - publisher
     
   pub.geoserver.staging:
     extends:
@@ -127,6 +142,9 @@ services:
     volumes:
       - pub_service_raster:/var/lib/geo-publisher/raster
       - pub_geoserver_staging_data:/var/lib/geo-publisher/geoserver
+    networks:
+      - gdi-base
+      - publisher
     
   pub.viewer.staging:
     extends:
@@ -139,6 +157,9 @@ services:
       - VIEWER_CONTEXT=/staging/viewer
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
+    networks:
+      - gdi-base
+      - publisher
 
   pub.geoserver.public:
     extends:
@@ -152,6 +173,9 @@ services:
     volumes:
       - pub_service_raster:/var/lib/geo-publisher/raster
       - pub_geoserver_public_data:/var/lib/geo-publisher/geoserver
+    networks:
+      - gdi-base
+      - publisher
     
   pub.viewer.public:
     extends:
@@ -164,8 +188,11 @@ services:
       - VIEWER_CONTEXT=/public/viewer
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
-
+    networks:
+      - gdi-base
+      - publisher
+      
 networks:
-  default:
-    external:
-      name: gdi
+  gdi-base:
+    external: true
+  publisher:
