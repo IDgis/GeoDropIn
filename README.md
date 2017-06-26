@@ -70,6 +70,6 @@ create table GDB_ITEMS_VW (
 
 ## Inserting or updating a metadata record in Oracle
 
-``docker run -e "JAVA_OPTS=-Xmx32M -Duser.timezone=Europe/Amsterdam" -e "GEODROPIN_HOST=[host_geodropin_app]" -e "DB_IP=gdi_oracle_1" -e "DB_PORT=1521" -e "DB_SID=XE" -e "DB_USER=[user_oracle_database]" -e "DB_PASSWORD=[password_oracle_database]" --rm --network gdi --link gdi_proxy_1:[server_name_geodropin_app] idgis/oracle-metadata /opt/bin/oracle-metadata [insert/update] [user] [geodropin_id] [physicalname]``
+``docker run -e "JAVA_OPTS=-Xmx32M -Duser.timezone=Europe/Amsterdam" -e "GEODROPIN_HOST=[host_geodropin_app]" -e "DB_IP=gdi_oracle_1" -e "DB_PORT=1521" -e "DB_SID=XE" -e "DB_USER=[user_oracle_database]" -e "DB_PASSWORD=[password_oracle_database]" --rm --network gdi idgis/oracle-metadata /opt/bin/oracle-metadata [insert/update] [user] [geodropin_id] [physicalname]``
 
 [user] should match the template in oracle-metadata app: ``dataset_template_[user].xml``
