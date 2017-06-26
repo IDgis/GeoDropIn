@@ -2,3 +2,4 @@ node_modules
 /bin/
 .project
 docker/*_deploy.sh
+docker/dev-geodropin.yml

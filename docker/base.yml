@@ -23,6 +23,8 @@ services:
       - base_vhost:/etc/nginx/vhost.d
       - base_html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - gdi-base
 
   letsencrypt:
     restart: always
@@ -32,10 +34,14 @@ services:
     volumes:
       - base_certs:/etc/nginx/certs:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - gdi-base
   
   zookeeper:
     image: jplock/zookeeper
     restart: always
+    networks:
+      - gdi-base
     
   gdi.web:
     restart: always
@@ -49,21 +55,29 @@ services:
     volumes:
       - geodropinfiles:/var/lib/geodropinfiles
       - geodropinlogos:/var/lib/geodropinlogos
+    networks:
+      - gdi-base
 
   gdi.db:
     restart: always
     image: mongo:3.2.11
     volumes:
       - mongo_db:/data/db
+    networks:
+      - gdi-base
       
   oracle.metadata:
     image: idgis/oracle-metadata
+    networks:
+      - gdi-base
   
   oracle:
     build: oracle
     restart: always
     volumes:
       - oracle_db:/u01/app/oracle
+    networks:
+      - gdi-base
   
   ogr2ogr:
     build: ogr2ogr
@@ -75,8 +89,9 @@ services:
     volumes:
       - ogr2ogr_shapefiles:/var/lib/shapefiles
       - ogr2ogr_tnsadmin:/opt/instantclient_12_1
-
+    networks:
+      - gdi-base
+      
 networks:
-  default:
-    external:
-      name: gdi
+  gdi-base:
+    external: true
