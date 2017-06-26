@@ -26,7 +26,7 @@ In the GeoDropIn folder path ``/docker/nginx/conf`` add a conf file for each cli
 
 ## Step 5: create user and related tables (execute this as system) - for each user
 
-Execute this sql:
+Execute this sql in sqlplus. You can copy and paste this, sqlplus can handle newlines:
 
 ```
 create user [username] identified by [password] default tablespace users temporary tablespace temp;
