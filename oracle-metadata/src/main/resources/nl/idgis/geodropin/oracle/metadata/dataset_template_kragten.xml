@@ -14,10 +14,10 @@
     <contact>
       <CI_ResponsibleParty>
         <individualName>
-          <gco:CharacterString>Team beleidsinformatie</gco:CharacterString>
+          <gco:CharacterString>Vakgroep GIS</gco:CharacterString>
         </individualName>
         <organisationName>
-          <gco:CharacterString>Rijssen Holten</gco:CharacterString>
+          <gco:CharacterString>Kragten B.V.</gco:CharacterString>
         </organisationName>
         <positionName>
           <gco:CharacterString>Beheerder</gco:CharacterString>
@@ -27,29 +27,29 @@
             <address>
               <CI_Address>
                 <deliveryPoint>
-                  <gco:CharacterString>Postbus</gco:CharacterString>
+                  <gco:CharacterString>Postbus 14</gco:CharacterString>
                 </deliveryPoint>
                 <city>
-                  <gco:CharacterString>Rijssen</gco:CharacterString>
+                  <gco:CharacterString>Roermond</gco:CharacterString>
                 </city>
                 <administrativeArea>
-                  <gco:CharacterString>Overijssel</gco:CharacterString>
+                  <gco:CharacterString>Limburg</gco:CharacterString>
                 </administrativeArea>
                 <postalCode>
-                  <gco:CharacterString>7461 AX</gco:CharacterString>
+                  <gco:CharacterString>6040 AA</gco:CharacterString>
                 </postalCode>
                 <country>
                   <gco:CharacterString>Nederland</gco:CharacterString>
                 </country>
                 <electronicMailAddress>
-                  <gco:CharacterString>info@rijssen.nl</gco:CharacterString>
+                  <gco:CharacterString>info@kragten.nl</gco:CharacterString>
                 </electronicMailAddress>
               </CI_Address>
             </address>
             <onlineResource>
               <CI_OnlineResource>
                 <linkage>
-                  <URL>www.rijssen.nl</URL>
+                  <URL>www.kragten.nl</URL>
                 </linkage>
               </CI_OnlineResource>
             </onlineResource>
@@ -124,24 +124,24 @@
         <pointOfContact>
           <CI_ResponsibleParty>
             <individualName>
-              <gco:CharacterString>Team beleidsinformatie</gco:CharacterString>
+              <gco:CharacterString>Vakgroep GIS</gco:CharacterString>
             </individualName>
             <organisationName>
-              <gco:CharacterString>Rijssen Holten</gco:CharacterString>
+              <gco:CharacterString>Kragten B.V.</gco:CharacterString>
             </organisationName>
             <contactInfo>
               <CI_Contact>
                 <address>
                   <CI_Address>
                     <electronicMailAddress>
-                      <gco:CharacterString>info@rijssen.nl</gco:CharacterString>
+                      <gco:CharacterString>info@kragten.nl</gco:CharacterString>
                     </electronicMailAddress>
                   </CI_Address>
                 </address>
                 <onlineResource>
                   <CI_OnlineResource>
                     <linkage>
-                      <URL>www.rijssen.nl</URL>
+                      <URL>www.kragten.nl</URL>
                     </linkage>
                   </CI_OnlineResource>
                 </onlineResource>
@@ -232,7 +232,7 @@
                 <geographicIdentifier>
                   <MD_Identifier>
                     <code>
-                      <gco:CharacterString>Rijssen</gco:CharacterString>
+                      <gco:CharacterString>Limburg</gco:CharacterString>
                     </code>
                   </MD_Identifier>
                 </geographicIdentifier>
@@ -256,17 +256,17 @@
             <distributorContact>
               <CI_ResponsibleParty>
                 <individualName>
-                  <gco:CharacterString>Team beleidsinformatie</gco:CharacterString>
+                  <gco:CharacterString>Vakgroep GIS</gco:CharacterString>
                 </individualName>
                 <organisationName>
-                  <gco:CharacterString>Rijssen Holten</gco:CharacterString>
+                  <gco:CharacterString>Kragten B.V.</gco:CharacterString>
                 </organisationName>
                 <contactInfo>
                   <CI_Contact>
                     <onlineResource>
                       <CI_OnlineResource>
                         <linkage>
-                          <URL>www.rijssen.nl</URL>
+                          <URL>www.kragten.nl</URL>
                         </linkage>
                       </CI_OnlineResource>
                     </onlineResource>
