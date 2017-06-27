@@ -36,13 +36,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - gdi-base
-  
-  zookeeper:
-    image: jplock/zookeeper
-    restart: always
-    networks:
-      - gdi-base
-      - publisher
     
   gdi.web:
     restart: always
@@ -96,4 +89,3 @@ services:
 networks:
   gdi-base:
     external: true
-  publisher:

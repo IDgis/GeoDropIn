@@ -36,6 +36,12 @@ services:
       - ENVIRONMENT_0=geoserver-public,Publieke services,false,http://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTP_PORT}/public/geoserver/,false
     networks:
       - publisher
+  
+  zookeeper:
+    image: jplock/zookeeper
+    restart: always
+    networks:
+      - publisher
       
   pub.provider:
     image: idgis/geopublisher_provider:${PUB_VERSION}
