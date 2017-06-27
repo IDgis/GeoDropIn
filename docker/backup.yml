@@ -11,7 +11,7 @@ services:
       - SFTP_PASSWORD=${BACKUP_SFTP_PASSWORD}
       - SFTP_HOST=${BACKUP_SFTP_HOST}
       - SFTP_PORT=${BACKUP_SFTP_PORT}
-      - BACKUP_NAME=geopublisher/backup/db
+      - BACKUP_NAME=geopublisher/${BACKUP_CLIENT_MAP}/backup/db
 
   backup.files:
     build: backup-files
@@ -21,6 +21,6 @@ services:
       - SFTP_PASSWORD=${BACKUP_SFTP_PASSWORD}
       - SFTP_HOST=${BACKUP_SFTP_HOST}
       - SFTP_PORT=${BACKUP_SFTP_PORT}
-      - BACKUP_NAME=geopublisher/backup/files
+      - BACKUP_NAME=geopublisher/${BACKUP_CLIENT_MAP}/backup/files
     volumes:
       - pub_service_raster:/backup/raster:ro
