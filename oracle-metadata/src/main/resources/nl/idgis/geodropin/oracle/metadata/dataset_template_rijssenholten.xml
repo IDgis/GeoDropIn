@@ -14,10 +14,10 @@
     <contact>
       <CI_ResponsibleParty>
         <individualName>
-          <gco:CharacterString>Team beleidsinformatie</gco:CharacterString>
+          <gco:CharacterString>Team Geo-informatie</gco:CharacterString>
         </individualName>
         <organisationName>
-          <gco:CharacterString>Rijssen Holten</gco:CharacterString>
+          <gco:CharacterString>Gemeente Rijssen-Holten</gco:CharacterString>
         </organisationName>
         <positionName>
           <gco:CharacterString>Beheerder</gco:CharacterString>
@@ -27,7 +27,7 @@
             <address>
               <CI_Address>
                 <deliveryPoint>
-                  <gco:CharacterString>Postbus</gco:CharacterString>
+                  <gco:CharacterString>Postbus 224</gco:CharacterString>
                 </deliveryPoint>
                 <city>
                   <gco:CharacterString>Rijssen</gco:CharacterString>
@@ -36,20 +36,20 @@
                   <gco:CharacterString>Overijssel</gco:CharacterString>
                 </administrativeArea>
                 <postalCode>
-                  <gco:CharacterString>7461 AX</gco:CharacterString>
+                  <gco:CharacterString>7460 AE</gco:CharacterString>
                 </postalCode>
                 <country>
                   <gco:CharacterString>Nederland</gco:CharacterString>
                 </country>
                 <electronicMailAddress>
-                  <gco:CharacterString>info@rijssen.nl</gco:CharacterString>
+                  <gco:CharacterString>gemeente@rijssen-holten.nl</gco:CharacterString>
                 </electronicMailAddress>
               </CI_Address>
             </address>
             <onlineResource>
               <CI_OnlineResource>
                 <linkage>
-                  <URL>www.rijssen.nl</URL>
+                  <URL>www.rijssen-holten.nl</URL>
                 </linkage>
               </CI_OnlineResource>
             </onlineResource>
@@ -124,24 +124,24 @@
         <pointOfContact>
           <CI_ResponsibleParty>
             <individualName>
-              <gco:CharacterString>Team beleidsinformatie</gco:CharacterString>
+              <gco:CharacterString>Team Geo-informatie</gco:CharacterString>
             </individualName>
             <organisationName>
-              <gco:CharacterString>Rijssen Holten</gco:CharacterString>
+              <gco:CharacterString>Gemeente Rijssen-Holten</gco:CharacterString>
             </organisationName>
             <contactInfo>
               <CI_Contact>
                 <address>
                   <CI_Address>
                     <electronicMailAddress>
-                      <gco:CharacterString>info@rijssen.nl</gco:CharacterString>
+                      <gco:CharacterString>gemeente@rijssen-holten.nl</gco:CharacterString>
                     </electronicMailAddress>
                   </CI_Address>
                 </address>
                 <onlineResource>
                   <CI_OnlineResource>
                     <linkage>
-                      <URL>www.rijssen.nl</URL>
+                      <URL>www.rijssen-holten.nl</URL>
                     </linkage>
                   </CI_OnlineResource>
                 </onlineResource>
@@ -256,17 +256,17 @@
             <distributorContact>
               <CI_ResponsibleParty>
                 <individualName>
-                  <gco:CharacterString>Team beleidsinformatie</gco:CharacterString>
+                  <gco:CharacterString>Team Geo-informatie</gco:CharacterString>
                 </individualName>
                 <organisationName>
-                  <gco:CharacterString>Rijssen Holten</gco:CharacterString>
+                  <gco:CharacterString>Gemeente Rijssen-Holten</gco:CharacterString>
                 </organisationName>
                 <contactInfo>
                   <CI_Contact>
                     <onlineResource>
                       <CI_OnlineResource>
                         <linkage>
-                          <URL>www.rijssen.nl</URL>
+                          <URL>www.rijssen-holten.nl</URL>
                         </linkage>
                       </CI_OnlineResource>
                     </onlineResource>
