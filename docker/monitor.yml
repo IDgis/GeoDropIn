@@ -7,7 +7,7 @@ services:
       service: pub.monitor
     command: staging 
     environment:
-      - STAGING_ENVIRONMENT_URL=http://${DOMAIN_PREFIX}${PUB_DOMAIN_SUFFIX}:${HTTP_PORT}/staging/geoserver/
+      - STAGING_ENVIRONMENT_URL=http://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTP_PORT}/staging/geoserver/
 
   pub.monitor.public:
     extends:
