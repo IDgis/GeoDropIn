@@ -42,6 +42,7 @@ services:
     restart: always
     networks:
       - gdi-base
+      - publisher
     
   gdi.web:
     restart: always
@@ -95,3 +96,4 @@ services:
 networks:
   gdi-base:
     external: true
+  publisher:
