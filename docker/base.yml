@@ -1,9 +1,6 @@
 version: '2'
 
 volumes:
-  base_certs:
-  base_vhost:
-  base_html:
   geodropinfiles:
   geodropinlogos:
   mongo_db:
@@ -12,20 +9,6 @@ volumes:
   ogr2ogr_tnsadmin:
 
 services:
-  proxy:
-    restart: always
-    build: nginx
-    ports:
-      - "${IP_ADDR}:${HTTP_PORT}:${HTTP_PORT}"
-      - "${IP_ADDR}:${HTTPS_PORT}:${HTTPS_PORT}"
-    volumes:
-      - base_certs:/etc/nginx/certs:ro
-      - base_vhost:/etc/nginx/vhost.d
-      - base_html:/usr/share/nginx/html
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-    networks:
-      - gdi-base
-
   letsencrypt:
     restart: always
     image: jrcs/letsencrypt-nginx-proxy-companion

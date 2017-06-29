@@ -1,5 +1,5 @@
 node_modules
 /bin/
 .project
-docker/*_deploy.sh
-docker/dev-geodropin.yml
+docker/deploy_*.sh
+docker/geodropin-dev.yml
