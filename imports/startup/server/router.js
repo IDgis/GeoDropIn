@@ -13,7 +13,7 @@ Router.route('/files/:id', function() {
 	var filename = att.copies.Attachment.key;
 	var contentType = att.copies.Attachment.type;
 	
-	var pathDir = '/var/lib/geodropinfiles/';
+	var pathDir = process.env.GDI_PATH_FILES;
 	var filePath = path.resolve(pathDir + filename);
 	var data = fs.readFileSync(filePath);
     
@@ -31,7 +31,7 @@ Router.route('/logos/:filename', function() {
 	var fs = require('fs');
 	var path = require('path');
 	
-	var pathDir = '/var/lib/geodropinlogos/';
+	var pathDir = process.env.GDI_PATH_LOGOS;
 	var filename = this.params.filename;
 	
 	var filePath = path.resolve(pathDir + filename);
