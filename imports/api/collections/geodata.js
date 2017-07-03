@@ -15,7 +15,7 @@ export const GeodataSchema = new SimpleSchema({
   },
   date: {
   	type: Date,
-    label: 'Datum'
+    label: 'Laatste wijzigingsdatum dataset'
   },
   user: {
 	type: String,
