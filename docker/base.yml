@@ -1,6 +1,9 @@
 version: '2'
 
 volumes:
+  base_certs:
+  base_vhost:
+  base_html:
   geodropinfiles:
   geodropinlogos:
   mongo_db:
@@ -9,6 +12,20 @@ volumes:
   ogr2ogr_tnsadmin:
 
 services:
+  proxy:
+    restart: always
+    build: ${NGINX_FOLDER}
+    ports:
+      - "${IP_ADDR}:${HTTP_PORT}:${HTTP_PORT}"
+      - "${IP_ADDR}:${HTTPS_PORT}:${HTTPS_PORT}"
+    volumes:
+      - base_certs:/etc/nginx/certs:ro
+      - base_vhost:/etc/nginx/vhost.d
+      - base_html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - gdi-base
+      
   letsencrypt:
     restart: always
     image: jrcs/letsencrypt-nginx-proxy-companion
@@ -25,6 +42,10 @@ services:
     image: idgis/geodropin:${GDI_VERSION}
     environment:
       - MAIL_URL=smtp://${GDI_EMAIL_USER}:${GDI_EMAIL_PASSWORD}@${GDI_EMAIL_SERVER}:${GDI_EMAIL_PORT}
+      - GDI_MAIL_FROM=${GDI_MAIL_FROM}
+      - GDI_MAIL_TO=${GDI_MAIL_TO}
+      - GDI_PATH_FILES=${GDI_PATH_FILES}
+      - GDI_PATH_LOGOS=${GDI_PATH_LOGOS}
       - MONGO_URL=mongodb://gdi.db/geodropin
       - ROOT_URL=http://${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}:${HTTP_PORT}
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}
