@@ -130,6 +130,20 @@ function findIndex(obj) {
 }
 
 AutoForm.addHooks('geodataform', {
+	before: {
+		update: function(doc) {
+			var newDate = this.updateDoc.$set.date;
+			var oldDate = this.currentDoc.date;
+			
+			var differentDate = (oldDate.valueOf() !== newDate.valueOf());
+			
+			if(differentDate) {
+				Meteor.call('sendMail', this.docId, 'updated');
+			}
+			
+			return doc;
+		}
+	},
 	after: {
 		insert: function(error, result) {
 			var dataId = result;
@@ -164,8 +178,6 @@ AutoForm.addHooks('geodataform', {
 			
 			var couplingId = CouplingAttData.findOne({dataId: this.docId})._id;
 			CouplingAttData.update({_id: couplingId}, {$set: {attachmentIds: attIds}});
-			
-			Meteor.call('sendMail', this.docId, 'updated');
 		}
 	},
 	onSuccess: function() {
