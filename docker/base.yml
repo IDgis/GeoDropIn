@@ -44,8 +44,8 @@ services:
       - MAIL_URL=smtp://${GDI_EMAIL_USER}:${GDI_EMAIL_PASSWORD}@${GDI_EMAIL_SERVER}:${GDI_EMAIL_PORT}
       - GDI_MAIL_FROM=${GDI_MAIL_FROM}
       - GDI_MAIL_TO=${GDI_MAIL_TO}
-      - GDI_PATH_FILES=${GDI_PATH_FILES}
-      - GDI_PATH_LOGOS=${GDI_PATH_LOGOS}
+      - GDI_PATH_FILES=/var/lib/geodropinfiles/
+      - GDI_PATH_LOGOS=/var/lib/geodropinlogos/
       - MONGO_URL=mongodb://gdi.db/geodropin
       - ROOT_URL=http://${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}:${HTTP_PORT}
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}
