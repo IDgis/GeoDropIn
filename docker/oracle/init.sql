@@ -1,1 +1,0 @@
-ALTER SYSTEM SET disk_asynch_io = FALSE SCOPE = SPFILE;
