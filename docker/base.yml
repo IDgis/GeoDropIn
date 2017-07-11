@@ -47,7 +47,7 @@ services:
       - GDI_PATH_FILES=/var/lib/geodropinfiles/
       - GDI_PATH_LOGOS=/var/lib/geodropinlogos/
       - MONGO_URL=mongodb://gdi.db/geodropin
-      - ROOT_URL=http://${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}:${HTTP_PORT}
+      - ROOT_URL=http://${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}geodropin${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
     volumes:

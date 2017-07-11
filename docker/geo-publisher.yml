@@ -33,7 +33,7 @@ services:
       - PG_USER=publisher
       - PG_PASSWORD=${PUB_PG_PASSWORD}
       - DATASOURCE_0=geodropin-vector,Vectordata
-      - ENVIRONMENT_0=geoserver-public,Publieke services,false,https://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTPS_PORT}/public/geoserver/,false
+      - ENVIRONMENT_0=geoserver-public,Publieke services,false,${PUB_PROTOCOL}://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}/public/geoserver/,false
     networks:
       - publisher
   
@@ -70,7 +70,7 @@ services:
       - AKKA_HOSTNAME=pub.service
       - AKKA_LOGLEVEL=DEBUG
       - ZOOKEEPER_HOSTS=zookeeper
-      - METADATA_URL_PREFIX=https://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTPS_PORT}/metadata/dataset/
+      - METADATA_URL_PREFIX=${PUB_PROTOCOL}://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}/metadata/dataset/
       - SSL_PRIVATE_KEYSTORE=/etc/geo-publisher/ssl/private.jks
       - SSL_PRIVATE_KEYSTORE_PASSWORD=harvester
       - SSL_TRUSTED_KEYSTORE=/etc/geo-publisher/ssl/trusted.jks
@@ -94,9 +94,9 @@ services:
       - AKKA_HOSTNAME=pub.web
       - SERVICE_HOST=pub.service
       - ADMIN_PASSWORD=${PUB_ADMIN_PASSWORD}
-      - GEOSERVER_DOMAIN=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTP_PORT}/staging
-      - DATASET_METADATA_URL_PREFIX=https://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTPS_PORT}/metadata/dataset/
-      - SERVICE_METADATA_URL_PREFIX=https://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTPS_PORT}/metadata/service/
+      - GEOSERVER_DOMAIN=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}/staging
+      - DATASET_METADATA_URL_PREFIX=${PUB_PROTOCOL}://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}/metadata/dataset/
+      - SERVICE_METADATA_URL_PREFIX=${PUB_PROTOCOL}://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}/metadata/service/
       - CLIENT_LOGO=${PUB_CLIENT_LOGO}
       - CLIENT_URL=${PUB_CLIENT_URL}
       - PREVIEW_BBOX=${PUB_PREVIEW_BBOX}
@@ -120,11 +120,11 @@ services:
       - PG_DBNAME=publisher
       - PG_USER=publisher
       - PG_PASSWORD=${PUB_PG_PASSWORD}
-      - VIEWER_URL_PREFIX_PUBLIC=https://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTPS_PORT}/public/viewer
-      - VIEWER_URL_PREFIX_SECURE=https://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTPS_PORT}/secure/viewer
-      - VIEWER_URL_PREFIX_WMSONLY=https://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTPS_PORT}/wmsonly/viewer
+      - VIEWER_URL_PREFIX_PUBLIC=${PUB_PROTOCOL}://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}/public/viewer
+      - VIEWER_URL_PREFIX_SECURE=${PUB_PROTOCOL}://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}/secure/viewer
+      - VIEWER_URL_PREFIX_WMSONLY=${PUB_PROTOCOL}://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}/wmsonly/viewer
       - TRUSTED_HEADER=GeoPublisher-trusted
-      - METADATA_HOST=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTP_PORT}
+      - METADATA_HOST=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}
       - JAVA_OPTS=-Xmx128M -Duser.timezone=${TIME_ZONE}
       - METADATA_BBOX=${PUB_METADATA_BBOX}
       - STYLESHEET_PREFIX=/metadata/stylesheets/
@@ -144,7 +144,7 @@ services:
       - SERVICE_IDENTIFICATION=geoserver-staging
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
-      - PROXY_BASE_URL=https://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTPS_PORT}/staging/geoserver/
+      - PROXY_BASE_URL=${PUB_PROTOCOL}://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}/staging/geoserver/
     volumes:
       - pub_service_raster:/var/lib/geo-publisher/raster
       - pub_geoserver_staging_data:/var/lib/geo-publisher/geoserver
@@ -159,7 +159,7 @@ services:
     depends_on:
       - pub.geoserver.staging
     environment:
-      - VIEWER_ENVIRONMENT_URL=https://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTPS_PORT}/staging/geoserver/
+      - VIEWER_ENVIRONMENT_URL=${PUB_PROTOCOL}://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}/staging/geoserver/
       - VIEWER_CONTEXT=/staging/viewer
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
@@ -175,7 +175,7 @@ services:
       - SERVICE_IDENTIFICATION=geoserver-public
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
-      - PROXY_BASE_URL=https://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTPS_PORT}/public/geoserver/
+      - PROXY_BASE_URL=${PUB_PROTOCOL}://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}/public/geoserver/
     volumes:
       - pub_service_raster:/var/lib/geo-publisher/raster
       - pub_geoserver_public_data:/var/lib/geo-publisher/geoserver
@@ -190,7 +190,7 @@ services:
     depends_on:
       - pub.geoserver.public
     environment:
-      - VIEWER_ENVIRONMENT_URL=https://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}:${HTTPS_PORT}/public/geoserver/
+      - VIEWER_ENVIRONMENT_URL=${PUB_PROTOCOL}://${DOMAIN_PREFIX}${DOMAIN_SUFFIX}/public/geoserver/
       - VIEWER_CONTEXT=/public/viewer
       - LETSENCRYPT_HOST=${DOMAIN_PREFIX}${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=admin@geopublisher.nl
