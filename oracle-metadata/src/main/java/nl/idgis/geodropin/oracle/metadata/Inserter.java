@@ -106,19 +106,19 @@ public class Inserter {
 			if("insert".equals(t.typeStatement)) {
 				sql = "insert into GDB_ITEMS_VW values (?, ?, ?, ?, ?)";
 				PreparedStatement stmt = connection.prepareStatement(sql);
-				stmt.setString(1,  "{" + UUID.randomUUID().toString() + "}");
-				stmt.setString(2,  t.geodropinId);
-				stmt.setString(3,  ITEM_TYPE);
-				stmt.setString(4,  physicalName);
-				stmt.setString(5,  result);
+				stmt.setString(1, "{" + UUID.randomUUID().toString() + "}");
+				stmt.setString(2, t.geodropinId);
+				stmt.setString(3, ITEM_TYPE);
+				stmt.setString(4, physicalName);
+				stmt.setString(5, result);
 				stmt.execute();
 				stmt.close();
 			} else {
-				sql = "update GDB_ITEMS_VW set GEODROPINID = ?, PHYSICALNAME = ?, DOCUMENTATION = ?";
+				sql = "update GDB_ITEMS_VW set PHYSICALNAME = ?, DOCUMENTATION = ? where GEODROPINID = ?";
 				PreparedStatement stmt = connection.prepareStatement(sql);
-				stmt.setString(1,  t.geodropinId);
-				stmt.setString(2,  physicalName);
-				stmt.setString(3,  result);
+				stmt.setString(1, physicalName);
+				stmt.setString(2, result);
+				stmt.setString(3, t.geodropinId);
 				stmt.execute();
 				stmt.close();
 			}
