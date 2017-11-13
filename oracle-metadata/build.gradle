@@ -49,6 +49,44 @@ task copyContext(type: Copy) {
 task createDockerfile(type: Dockerfile) {
 	destFile = file("${project.buildDir}/docker/Dockerfile")
 	from 'azul/zulu-openjdk'
+    
+    // Setup of ogr2ogr and instantclient 
+    runCommand apt-get install -y unzip curl build-essential libaio1
+    runCommand cd ~/ && \
+        curl -O -J https://github.com/IDgis/GeoDropIn-compose/blob/master/ogr2ogr/instantclient-basic-linux.x64-12.1.0.2.0.zip
+        curl -O -J https://github.com/IDgis/GeoDropIn-compose/blob/master/ogr2ogr/instantclient-sdk-linux.x64-12.1.0.2.0.zip
+        curl -O -J https://github.com/IDgis/GeoDropIn-compose/blob/master/ogr2ogr/instantclient-sqlplus-linux.x64-12.1.0.2.0.zip
+        cd /opt && \
+        unzip ~/instantclient-basic-linux.x64-12.1.0.2.0.zip && \
+        unzip ~/instantclient-sdk-linux.x64-12.1.0.2.0.zip && \
+        unzip ~/instantclient-sqlplus-linux.x64-12.1.0.2.0.zip && \
+        export LD_LIBRARY_PATH=/opt/instantclient_12_1 && \
+        cd ~/ && \
+        curl -O -J http://download.osgeo.org/gdal/2.1.2/gdal-2.1.2.tar.gz && \
+        gunzip -c gdal-2.1.2.tar.gz | tar -xv && \
+        cd /opt/instantclient_12_1 && \
+        ln -s libclntsh.so.12.1 libclntsh.so && \
+        cd ~/gdal-2.1.2 && \
+        ./configure --with-oci-include=/opt/instantclient_12_1/sdk/include --with-oci-lib=/opt/instantclient_12_1 && \
+        make && \
+        make install && \
+        ldconfig && \
+        rm -fr ~/gdal-2.1.2* && \
+        rm -fr ~/instantclient*
+        cd /opt/instantclient_12_1 && \
+        curl -O -J https://github.com/IDgis/GeoDropIn-compose/blob/master/ogr2ogr/tnsnames.ora && \ 
+        chmod a=rwx /opt/instantclient_12_1/tnsnames.ora
+    
+    runCommand cd /var/lib/shapefiles && \
+        /*
+        * unzip [file_zip] -d [map]
+        * rm [file_zip]
+        * [type_vector] = ogrinfo [shape.shp] | grep "(" | awk '{print $3}' | sed 's/(/MULTI/' | sed 's/)//' | tr [a-z] [A-Z]
+        * ogr2ogr -f OCI OCI:[user_oracle]/[password_oracle]@oracle-xec:[user_oracle].dummy /var/lib/shapefiles/[shape.shp] -nlt [type_vector] -lco SRID=[srid] -lco PRECISION=NO -lco DIM=2
+        */
+        cd ~/
+    
+    // For Oracle metadata
 	copyFile "oracle-metadata", '/opt'
 	runCommand 'chmod +x /opt/bin/oracle-metadata'
 	defaultCommand "/opt/bin/oracle-metadata"
