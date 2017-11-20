@@ -115,14 +115,7 @@ function findIndex(obj) {
 AutoForm.addHooks('geodataform', {
 	before: {
 		update: function(doc) {
-			var newDate = this.updateDoc.$set.date;
-			var oldDate = this.currentDoc.date;
-			
-			var differentDate = (oldDate.valueOf() !== newDate.valueOf());
-			
-			if(differentDate) {
-				Meteor.call('sendMail', this.docId, 'updated');
-			}
+			Meteor.call('sendMail', this.docId, 'updated');
 			
 			return doc;
 		}
@@ -139,6 +132,16 @@ AutoForm.addHooks('geodataform', {
 			
 			CouplingAttData.insert({dataId: dataId, attachmentIds: attachmentIds});
 			
+			var coupAttRecord = CouplingAttData.findOne({dataId: dataId});
+			var attRecord = Attachment.findOne({_id: coupAttRecord.attachmentIds[0]});
+			var zipFile = attRecord.copies.Attachment.key;
+			var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
+			
+			if(Meteor.user()) {
+				console.log('User is: ' + Meteor.user().username);
+			}
+			
+			Meteor.call('runDockerImage', dataId, zipName, 'insert');
 			Meteor.call('sendMail', dataId, 'inserted');
 		},
 		update: function(error, result) {
@@ -158,6 +161,12 @@ AutoForm.addHooks('geodataform', {
 			attachmentItems.forEach(function(item) {
 				attIds.push(item.fileId);
 			});
+			
+			//var coupAttRecord = CouplingAttData.findOne({dataId: this.docId});
+			//var attRecord = Attachment.findOne({_id: coupAttRecord.attachmentIds[0]});
+			//var zipFile = attRecord.copies.Attachment.key;
+			//var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
+			//Meteor.call('runDockerImage', this.docId, zipName, 'update');
 			
 			var couplingId = CouplingAttData.findOne({dataId: this.docId})._id;
 			CouplingAttData.update({_id: couplingId}, {$set: {attachmentIds: attIds}});
