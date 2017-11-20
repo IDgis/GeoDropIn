@@ -45,7 +45,8 @@ Meteor.startup(function () {
 				}
 			}
     		
-    		if(typeof process.env.GEODROPIN_HOST !== 'undefined' &&
+    		if(typeof process.env.GEODROPIN_HOST_PROTOCOL !== 'undefined' &&
+    				typeof process.env.GEODROPIN_HOST !== 'undefined' &&
     				typeof oracleUser !== 'undefined' &&
     				typeof oraclePassword !== 'undefined' &&
     				typeof zipName !== 'undefined' && zipName !== null &&
@@ -58,7 +59,8 @@ Meteor.startup(function () {
         	        		"-e \"TNS_ADMIN=/opt/instantclient_12_1\" " + 
         	        		"-e \"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/instantclient_12_1\" " + 
         	        		"-e \"JAVA_OPTS=-Xmx128M -Duser.timezone=Europe/Amsterdam\" " +
-        	        		"-e \"GEODROPIN_HOST=http://" + process.env.GEODROPIN_HOST + "\" " +
+        	        		"-e \"GEODROPIN_HOST=" + process.env.GEODROPIN_HOST_PROTOCOL + 
+        	        			"://" + process.env.GEODROPIN_HOST + "\" " +
         	        		"-e \"DB_IP=gdi_oracle_1\" " +
         	        		"-e \"DB_PORT=1521\" " +
         	        		"-e \"DB_SID=XE\" " +
