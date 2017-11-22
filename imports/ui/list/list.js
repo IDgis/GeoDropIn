@@ -31,10 +31,10 @@ Template.list.events({
 		var couplingId = couplingObject._id;
 		var attIds = couplingObject.attachmentIds;
 		
-		//var attRecord = Attachment.findOne({_id: couplingObject.attachmentIds[0]});
-		//var zipFile = attRecord.copies.Attachment.key;
-		//var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
-		//Meteor.call('runDockerImage', this.docId, zipName, 'delete');
+		var attRecord = Attachment.findOne({_id: couplingObject.attachmentIds[0]});
+		var zipFile = attRecord.copies.Attachment.key;
+		var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
+		Meteor.call('runDockerImage', geodataId, zipName, 'delete');
 		
 		Geodata.remove({_id: geodataId});
 		CouplingAttData.remove({_id: couplingId});
