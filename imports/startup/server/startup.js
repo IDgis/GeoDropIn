@@ -34,9 +34,7 @@ Meteor.startup(function () {
     Meteor.methods({
     	runDockerImage: function (geodropinId, zipName, typeAction) {
     		if(Meteor.user()) {
-				console.log('User is: ' + Meteor.user().username);
-    			
-    			if(Meteor.user().username === 'rijssenholten') {
+				if(Meteor.user().username === 'rijssenholten') {
 					var oracleUser = process.env.RIJSSENHOLTEN_ORACLE_DB_USER;
 					var oraclePassword = process.env.RIJSSENHOLTEN_ORACLE_DB_PASSWORD;
 				} else if(Meteor.user().username === 'kragten') {
@@ -44,15 +42,15 @@ Meteor.startup(function () {
 					var oraclePassword = process.env.KRAGTEN_ORACLE_DB_PASSWORD;
 				}
 			}
-    		
-    		if(typeof process.env.GEODROPIN_HOST_PROTOCOL !== 'undefined' &&
+			
+			if(typeof process.env.GEODROPIN_HOST_PROTOCOL !== 'undefined' &&
     				typeof process.env.GEODROPIN_HOST !== 'undefined' &&
     				typeof oracleUser !== 'undefined' &&
     				typeof oraclePassword !== 'undefined' &&
     				typeof zipName !== 'undefined' && zipName !== null &&
     				typeof geodropinId !== 'undefined' && geodropinId !== null) {
-    			if(typeAction === 'insert') {
-        			this.unblock();
+    			if(typeAction === 'insert' || typeAction === 'update' || typeAction === 'delete') {
+					this.unblock();
         	        var future = new Future();
         	        var command = "/usr/host/bin/docker run --rm " +
         	        		"-e \"LD_LIBRARY_PATH=/opt/instantclient_12_1\" " +
@@ -68,6 +66,7 @@ Meteor.startup(function () {
         	        		"-e \"DB_PASSWORD=" + oraclePassword + "\" " +
         	        		"-e \"GEODATA_ZIP_NAME=" + zipName + "\" " +
         	        		"-e \"GEODROPIN_ID=" + geodropinId + "\" " +
+        	        		"-e \"TYPEACTION=" + typeAction + "\" " +
         	        		"--volumes-from \"gdi_gdi.web_1\" " +
         	        		"-v \"ogr2ogr_tnsadmin:/opt/instantclient_12_1\" " +
         	        		"--network gdi-base " +
@@ -75,7 +74,7 @@ Meteor.startup(function () {
         	        		"gdi_ogr2ogr.oracle.metadata " +
         	        		"/opt/start.sh";
         	        
-        	        exec(command, function(error, stdout, stderr){
+					exec(command, function(error, stdout, stderr){
         	        	if(error) {
         	        		console.log(error);
         	        		throw new Meteor.Error(500, command + " failed");
