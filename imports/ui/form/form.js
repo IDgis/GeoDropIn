@@ -137,10 +137,6 @@ AutoForm.addHooks('geodataform', {
 			var zipFile = attRecord.copies.Attachment.key;
 			var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
 			
-			if(Meteor.user()) {
-				console.log('User is: ' + Meteor.user().username);
-			}
-			
 			Meteor.call('runDockerImage', dataId, zipName, 'insert');
 			Meteor.call('sendMail', dataId, 'inserted');
 		},
@@ -162,14 +158,14 @@ AutoForm.addHooks('geodataform', {
 				attIds.push(item.fileId);
 			});
 			
-			//var coupAttRecord = CouplingAttData.findOne({dataId: this.docId});
-			//var attRecord = Attachment.findOne({_id: coupAttRecord.attachmentIds[0]});
-			//var zipFile = attRecord.copies.Attachment.key;
-			//var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
-			//Meteor.call('runDockerImage', this.docId, zipName, 'update');
-			
 			var couplingId = CouplingAttData.findOne({dataId: this.docId})._id;
 			CouplingAttData.update({_id: couplingId}, {$set: {attachmentIds: attIds}});
+			
+			var coupAttRecord = CouplingAttData.findOne({dataId: this.docId});
+			var attRecord = Attachment.findOne({_id: coupAttRecord.attachmentIds[0]});
+			var zipFile = attRecord.copies.Attachment.key;
+			var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
+			Meteor.call('runDockerImage', this.docId, zipName, 'update');
 		}
 	},
 	onSuccess: function() {
