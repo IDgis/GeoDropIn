@@ -111,7 +111,7 @@ Router.route('/rest', {
     var busboy = new Busboy({ headers: req.headers });
     var inspect = require('util').inspect;
 
-    var attachment
+    var attachment;
     var dataId;
     
     busboy.on('file', Meteor.bindEnvironment(function(fieldname, file, filename, encoding, mimetype) {
@@ -204,7 +204,19 @@ Router.route('/rest', {
 Router.route('/rest/:_name', {
 	where: 'server',
 	onBeforeAction: function(req, res, next) {
-        if(req.headers.accept !== 'application/json') {
+        var geodata = Geodata.findOne({name: this.params._name});
+        if(geodata === undefined) {
+            var json = {
+                title: 'No dataset with name ' + this.params._name + ' found.',
+                status: 404
+            };
+        
+            res.writeHead(404, {
+                'Content-Type': 'application/json; charset=UTF-8'
+            });
+        
+            res.end(EJSON.stringify(json, {indent: true}));
+        } else if(req.headers.accept !== 'application/json') {
             var json = {
                 title: 'Invalid response format. Can only return application/json',
                 status: 406
@@ -215,7 +227,7 @@ Router.route('/rest/:_name', {
             });
         
             res.end(EJSON.stringify(json, {indent: true}));
-        } else if(req.method === 'DELETE' || req.method === 'POST') {
+        } else if(req.method === 'DELETE' || req.method === 'PUT') {
 			var authHeader = req.headers.authorization.split(' ');
 			var authType = authHeader[0];
             var authEncoded = authHeader[1];
@@ -271,7 +283,18 @@ Router.route('/rest/:_name', {
 			
                 res.end(EJSON.stringify(json, {indent: true}));
             }
-		} else {
+		} else if((req.headers['content-type']).indexOf('multipart/form-data') === -1 && req.method === 'PUT') {
+            var json = {
+                title: 'Invalid upload format. Should be multipart/form-data',
+                status: 415
+            };
+        
+            res.writeHead(415, {
+                'Content-Type': 'application/json; charset=UTF-8'
+            });
+        
+            res.end(EJSON.stringify(json, {indent: true}))
+        } else {
 			var json = {
                 title: 'Method ' + req.method + ' not allowed!',
                 status: 405
@@ -285,40 +308,115 @@ Router.route('/rest/:_name', {
 		}
 	}
 }).put(function(req, res) {
-    // UPDATE dataset
+    var authHeader = req.headers.authorization.split(' ');
+    var authType = authHeader[0];
+    var authEncoded = authHeader[1];
+    var credentials = new Buffer(authEncoded, 'base64').toString('ascii').split(':');
+    var username = credentials[0];
+
+    var Busboy = require('busboy');
+    var busboy = new Busboy({ headers: req.headers });
+    var inspect = require('util').inspect;
+
+    var geodata = Geodata.findOne({name: this.params._name});
+    var geodataId = geodata._id;
+    var couplingObject = CouplingAttData.findOne({dataId: geodataId});
+    var couplingId = couplingObject._id;
+    var attIds = couplingObject.attachmentIds;
+    var attachment;
+    var newFile = new FS.File();
+    var fileName;
+    
+    busboy.on('file', Meteor.bindEnvironment(function(fieldname, file, filename, encoding, mimetype) {
+        var bufs = [];
+        file.on('data', function(data) {
+            bufs.push(data);
+        });
+        file.on('end', Meteor.bindEnvironment(function() {
+            var buf = Buffer.concat(bufs);
+            newFile.attachData(buf, {type: 'application/zip'}, function(err) {
+                if(err) {
+                    console.log(err);
+                }
+            });
+            fileName = filename;
+        }));
+    }));
+
+    var postBody = {};
+    busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
+        postBody[fieldname] = val;
+    });
+
+    busboy.on('finish', Meteor.bindEnvironment(function() {
+        if(postBody.name === undefined || postBody.name === undefined || postBody.description === undefined || postBody.date === undefined) {
+            var json = {
+                title: 'Not all required parameters are entered. Please specify name, title, description and date',
+                status: 400
+            };
+        
+            res.writeHead(400, {
+                'Content-Type': 'application/json; charset=UTF-8'
+            });
+        
+            res.end(EJSON.stringify(json, {indent: true}));
+            return;
+        } else {
+            Attachment.remove({_id: attIds[0]});
+            attachment = Attachment.insert(newFile, Meteor.bindEnvironment(function(err, fileObj) {
+                if(err) {
+                    console.log(err);
+                }
+                fileObj.name(fileName);
+            }));
+
+            var pattern = /(\d{2})-(\d{2})-(\d{4})/;
+            Geodata.update({_id: geodataId}, {$set: {
+                name: postBody.name,
+                title: postBody.title,
+                description: postBody.description,
+                date: new Date(postBody.date.replace(pattern, '$3-$2-$1')),
+                user: username
+            }});
+            CouplingAttData.update({_id: couplingId}, {$set: {
+                dataId: geodataId,
+                attachmentIds: [attachment._id]
+            }});
+
+            /*var coupAttRecord = CouplingAttData.findOne({dataId: dataId});
+            var attRecord = Attachment.findOne({_id: coupAttRecord.attachmentIds[0]});
+            var zipFile = attRecord.copies.Attachment.key;
+            var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
+            
+            Meteor.call('runDockerImage', dataId, zipName, 'update');
+            Meteor.call('sendMail', dataId, 'updated');*/
+
+            res.writeHead(200, {});
+            res.end();
+        }
+    }));
+
+    req.pipe(busboy);
 }).delete(function(req, res) {
     var geodata = Geodata.findOne({name: this.params._name});
-    if(geodata === undefined) {
-        var json = {
-            title: 'Dataset with name ' + this.params._name + 'doesn\'t exist!',
-            status: 409
-        };
-    
-        res.writeHead(409, {
-            'Content-Type': 'application/json; charset=UTF-8'
-        });
-    
-        res.end(EJSON.stringify(json, {indent: true}));
-    } else {
-        var geodataId = geodata._id;
-        var couplingObject = CouplingAttData.findOne({dataId: geodataId});
-        var couplingId = couplingObject._id;
-        var attIds = couplingObject.attachmentIds;
+    var geodataId = geodata._id;
+    var couplingObject = CouplingAttData.findOne({dataId: geodataId});
+    var couplingId = couplingObject._id;
+    var attIds = couplingObject.attachmentIds;
 
-        var attRecord = Attachment.findOne({_id: couplingObject.attachmentIds[0]});
-		var zipFile = attRecord.copies.Attachment.key;
-		var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
-		//Meteor.call('runDockerImage', geodataId, zipName, 'delete');
-		
-		Geodata.remove({_id: geodataId});
-		CouplingAttData.remove({_id: couplingId});
-		attIds.forEach(function(item) {
-			Attachment.remove({_id: item});
-		});
-		
-		//Meteor.call('sendMail', geodataId, 'deleted');
+    var attRecord = Attachment.findOne({_id: couplingObject.attachmentIds[0]});
+    var zipFile = attRecord.copies.Attachment.key;
+    var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
+    //Meteor.call('runDockerImage', geodataId, zipName, 'delete');
+    
+    Geodata.remove({_id: geodataId});
+    CouplingAttData.remove({_id: couplingId});
+    attIds.forEach(function(item) {
+        Attachment.remove({_id: item});
+    });
+    
+    //Meteor.call('sendMail', geodataId, 'deleted');
 
-        res.writeHead(200, {});
-        res.end();
-    }
+    res.writeHead(200, {});
+    res.end();
 });
