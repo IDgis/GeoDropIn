@@ -2,6 +2,10 @@ import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 export const GeodataSchema = new SimpleSchema({
+  name: {
+    type: String,
+    label: 'Naam',
+  },
   title: {
     type: String,
     label: 'Titel'
@@ -18,14 +22,14 @@ export const GeodataSchema = new SimpleSchema({
     label: 'Laatste wijzigingsdatum dataset'
   },
   user: {
-	type: String,
-	autoValue: function() {
-		return Meteor.user().username;
+    type: String,
+    autoValue: function() {
+      return Meteor.user().username;
     }
   },
   lastRevisionDate: {
-	type: Date,
-	autoValue: function() {
+    type: Date,
+    autoValue: function() {
         return new Date();
     }
   }
