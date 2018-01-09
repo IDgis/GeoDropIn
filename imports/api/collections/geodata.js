@@ -23,7 +23,7 @@ export const GeodataSchema = new SimpleSchema({
   },
   user: {
     type: String,
-    autoValue: function() {
+    defaultValue: function() {
       return Meteor.user().username;
     }
   },
