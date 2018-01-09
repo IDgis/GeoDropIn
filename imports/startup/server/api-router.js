@@ -111,8 +111,8 @@ Router.route('/rest', {
     var busboy = new Busboy({ headers: req.headers });
     var inspect = require('util').inspect;
 
-    var attachment;
-    var dataId;
+    var fileName;
+    var newFile = new FS.File();
     
     busboy.on('file', Meteor.bindEnvironment(function(fieldname, file, filename, encoding, mimetype) {
         var bufs = [];
@@ -121,18 +121,12 @@ Router.route('/rest', {
         });
         file.on('end', Meteor.bindEnvironment(function() {
             var buf = Buffer.concat(bufs);
-            var newFile = new FS.File();
             newFile.attachData(buf, {type: 'application/zip'}, function(err) {
                 if(err) {
                     console.log(err);
                 }
             });
-            attachment = Attachment.insert(newFile, Meteor.bindEnvironment(function(err, fileObj) {
-                if(err) {
-                    console.log(err);
-                }
-                fileObj.name(filename);
-            }));
+            fileName = filename;
         }));
     }));
 
@@ -143,14 +137,13 @@ Router.route('/rest', {
 
     busboy.on('finish', Meteor.bindEnvironment(function() {
         var nameAlreadyExists = false;
-        Geodata.find().forEach(data => {
+        Geodata.find({user: username}).forEach(data => {
             if(data.name === postBody.name) {
                 nameAlreadyExists = true;
             }
         });
 
         if(nameAlreadyExists) {
-            Attachment.remove({_id: attachment._id})
             var json = {
                 title: 'Dataset with name ' + postBody.name + ' already exists!',
                 status: 409
@@ -162,7 +155,6 @@ Router.route('/rest', {
         
             res.end(EJSON.stringify(json, {indent: true}));
         } else if(postBody.name === undefined || postBody.name === undefined || postBody.description === undefined || postBody.date === undefined) {
-            Attachment.remove({_id: attachment._id});
             var json = {
                 title: 'Not all required parameters are entered. Please specify name, title, description and date',
                 status: 400
@@ -175,8 +167,14 @@ Router.route('/rest', {
             res.end(EJSON.stringify(json, {indent: true}));
             return;
         } else {
+            var attachment = Attachment.insert(newFile, Meteor.bindEnvironment(function(err, fileObj) {
+                if(err) {
+                    console.log(err);
+                }
+                fileObj.name(fileName);
+            }));
             var pattern = /(\d{2})-(\d{2})-(\d{4})/;
-            dataId = Geodata.insert({
+            var dataId = Geodata.insert({
                 name: postBody.name,
                 title: postBody.title,
                 description: postBody.description,
@@ -323,7 +321,7 @@ Router.route('/rest/:_name', {
     var couplingObject = CouplingAttData.findOne({dataId: geodataId});
     var couplingId = couplingObject._id;
     var attIds = couplingObject.attachmentIds;
-    var attachment;
+
     var newFile = new FS.File();
     var fileName;
     
@@ -349,7 +347,25 @@ Router.route('/rest/:_name', {
     });
 
     busboy.on('finish', Meteor.bindEnvironment(function() {
-        if(postBody.name === undefined || postBody.name === undefined || postBody.description === undefined || postBody.date === undefined) {
+        var nameAlreadyExists = false;
+        Geodata.find({user: username}).forEach(data => {
+            if(data.name === postBody.name) {
+                nameAlreadyExists = true;
+            }
+        });
+
+        if(nameAlreadyExists) {
+            var json = {
+                title: 'Dataset with name ' + postBody.name + ' already exists!',
+                status: 409
+            };
+        
+            res.writeHead(409, {
+                'Content-Type': 'application/json; charset=UTF-8'
+            });
+        
+            res.end(EJSON.stringify(json, {indent: true}));
+        } else if(postBody.name === undefined || postBody.name === undefined || postBody.description === undefined || postBody.date === undefined) {
             var json = {
                 title: 'Not all required parameters are entered. Please specify name, title, description and date',
                 status: 400
@@ -360,10 +376,9 @@ Router.route('/rest/:_name', {
             });
         
             res.end(EJSON.stringify(json, {indent: true}));
-            return;
         } else {
             Attachment.remove({_id: attIds[0]});
-            attachment = Attachment.insert(newFile, Meteor.bindEnvironment(function(err, fileObj) {
+            var attachment = Attachment.insert(newFile, Meteor.bindEnvironment(function(err, fileObj) {
                 if(err) {
                     console.log(err);
                 }
