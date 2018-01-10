@@ -183,13 +183,13 @@ Router.route('/rest', {
             });
             CouplingAttData.insert({dataId: dataId, attachmentIds: [attachment._id]});
 
-            /*var coupAttRecord = CouplingAttData.findOne({dataId: dataId});
+            var coupAttRecord = CouplingAttData.findOne({dataId: dataId});
             var attRecord = Attachment.findOne({_id: coupAttRecord.attachmentIds[0]});
             var zipFile = attRecord.copies.Attachment.key;
             var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
             
             Meteor.call('runDockerImage', dataId, zipName, 'insert');
-            Meteor.call('sendMail', dataId, 'inserted');*/
+            Meteor.call('sendMail', dataId, 'inserted');
 
             res.writeHead(201, {});
             res.end();
@@ -398,13 +398,13 @@ Router.route('/rest/:_name', {
                 attachmentIds: [attachment._id]
             }});
 
-            /*var coupAttRecord = CouplingAttData.findOne({dataId: dataId});
+            var coupAttRecord = CouplingAttData.findOne({dataId: dataId});
             var attRecord = Attachment.findOne({_id: coupAttRecord.attachmentIds[0]});
             var zipFile = attRecord.copies.Attachment.key;
             var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
             
             Meteor.call('runDockerImage', dataId, zipName, 'update');
-            Meteor.call('sendMail', dataId, 'updated');*/
+            Meteor.call('sendMail', dataId, 'updated');
 
             res.writeHead(200, {});
             res.end();
@@ -422,7 +422,7 @@ Router.route('/rest/:_name', {
     var attRecord = Attachment.findOne({_id: couplingObject.attachmentIds[0]});
     var zipFile = attRecord.copies.Attachment.key;
     var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
-    //Meteor.call('runDockerImage', geodataId, zipName, 'delete');
+    Meteor.call('runDockerImage', geodataId, zipName, 'delete');
     
     Geodata.remove({_id: geodataId});
     CouplingAttData.remove({_id: couplingId});
@@ -430,7 +430,7 @@ Router.route('/rest/:_name', {
         Attachment.remove({_id: item});
     });
     
-    //Meteor.call('sendMail', geodataId, 'deleted');
+    Meteor.call('sendMail', geodataId, 'deleted');
 
     res.writeHead(200, {});
     res.end();
