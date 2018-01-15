@@ -36,4 +36,5 @@ useraccounts:bootstrap
 
 ejson
 email
-msavin:mongol
+
+#msavin:mongol           # Debugging mongodb
