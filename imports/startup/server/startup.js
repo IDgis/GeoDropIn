@@ -76,11 +76,12 @@ Meteor.startup(function () {
         	        
 					exec(command, function(error, stdout, stderr){
         	        	if(error) {
-        	        		console.log(error);
-        	        		throw new Meteor.Error(500, command + " failed");
-        	        	}
-        	        	
-        	        	future.return(stdout.toString());
+							console.log(error);
+							future.return(stderr.toString());
+        	        		//throw new Meteor.Error(500, command + " failed");
+        	        	} else {
+							future.return(stdout.toString());
+						}
         	        });
         	        
         	        return future.wait();
@@ -136,11 +137,12 @@ Meteor.startup(function () {
         	        
 					exec(command, function(error, stdout, stderr){
         	        	if(error) {
-        	        		console.log(error);
-        	        		throw new Meteor.Error(500, command + " failed");
-        	        	}
-        	        	
-        	        	future.return(stdout.toString());
+							console.log(error);
+							future.return(stderr.toString());
+        	        		//throw new Meteor.Error(500, command + " failed");
+        	        	} else {
+							future.return(stdout.toString());
+						}
         	        });
         	        
         	        return future.wait();
