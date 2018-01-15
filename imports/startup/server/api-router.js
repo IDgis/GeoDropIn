@@ -396,13 +396,11 @@ Router.route('/rest/:_name', {
                 attachmentIds: [attachment._id]
             }});
 
-            var geodata = Geodata.findOne({name: this.params._name});
-            var geodataId = geodata._id;
             var zipFile = 'Attachment-' + attachment._id + '-' + fileName;
             var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
             
             Meteor.call('runDockerImageFromServer', username, geodataId, zipName, 'update');
-            Meteor.call('sendMailFromServer', username, dataId, 'updated');
+            Meteor.call('sendMailFromServer', username, geodataId, 'updated');
 
             res.writeHead(200, {});
             res.end();
