@@ -121,7 +121,7 @@ Router.route('/rest', {
         });
         file.on('end', Meteor.bindEnvironment(function() {
             var buf = Buffer.concat(bufs);
-            newFile.attachData(buf, {type: 'application/zip'}, function(err) {
+            newFile.attachData(buf, {type: mimetype}, function(err) {
                 if(err) {
                     console.log(err);
                 }
@@ -183,13 +183,11 @@ Router.route('/rest', {
             });
             CouplingAttData.insert({dataId: dataId, attachmentIds: [attachment._id]});
 
-            var coupAttRecord = CouplingAttData.findOne({dataId: dataId});
-            var attRecord = Attachment.findOne({_id: coupAttRecord.attachmentIds[0]});
-            var zipFile = attRecord.copies.Attachment.key;
+            var zipFile = 'Attachment-' + attachment._id + '-' + fileName;
             var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
             
-            Meteor.call('runDockerImage', dataId, zipName, 'insert');
-            Meteor.call('sendMail', dataId, 'inserted');
+            Meteor.call('runDockerImageFromServer', username, dataId, zipName, 'insert');
+            Meteor.call('sendMailFromServer', username, dataId, 'inserted');
 
             res.writeHead(201, {});
             res.end();
@@ -332,7 +330,7 @@ Router.route('/rest/:_name', {
         });
         file.on('end', Meteor.bindEnvironment(function() {
             var buf = Buffer.concat(bufs);
-            newFile.attachData(buf, {type: 'application/zip'}, function(err) {
+            newFile.attachData(buf, {type: mimetype}, function(err) {
                 if(err) {
                     console.log(err);
                 }
@@ -398,13 +396,11 @@ Router.route('/rest/:_name', {
                 attachmentIds: [attachment._id]
             }});
 
-            var coupAttRecord = CouplingAttData.findOne({dataId: dataId});
-            var attRecord = Attachment.findOne({_id: coupAttRecord.attachmentIds[0]});
-            var zipFile = attRecord.copies.Attachment.key;
+            var zipFile = 'Attachment-' + attachment._id + '-' + fileName;
             var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
             
-            Meteor.call('runDockerImage', dataId, zipName, 'update');
-            Meteor.call('sendMail', dataId, 'updated');
+            Meteor.call('runDockerImageFromServer', username, dataId, zipName, 'update');
+            Meteor.call('sendMailFromServer', username, dataId, 'updated');
 
             res.writeHead(200, {});
             res.end();
@@ -413,6 +409,12 @@ Router.route('/rest/:_name', {
 
     req.pipe(busboy);
 }).delete(function(req, res) {
+    var authHeader = req.headers.authorization.split(' ');
+    var authType = authHeader[0];
+    var authEncoded = authHeader[1];
+    var credentials = new Buffer(authEncoded, 'base64').toString('ascii').split(':');
+    var username = credentials[0];
+
     var geodata = Geodata.findOne({name: this.params._name});
     var geodataId = geodata._id;
     var couplingObject = CouplingAttData.findOne({dataId: geodataId});
@@ -422,7 +424,7 @@ Router.route('/rest/:_name', {
     var attRecord = Attachment.findOne({_id: couplingObject.attachmentIds[0]});
     var zipFile = attRecord.copies.Attachment.key;
     var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
-    Meteor.call('runDockerImage', geodataId, zipName, 'delete');
+    Meteor.call('runDockerImageFromServer', username, geodataId, zipName, 'delete');
     
     Geodata.remove({_id: geodataId});
     CouplingAttData.remove({_id: couplingId});
@@ -430,7 +432,7 @@ Router.route('/rest/:_name', {
         Attachment.remove({_id: item});
     });
     
-    Meteor.call('sendMail', geodataId, 'deleted');
+    Meteor.call('sendMailFromServer', username, geodataId, 'deleted');
 
     res.writeHead(200, {});
     res.end();
