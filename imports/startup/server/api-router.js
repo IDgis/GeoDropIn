@@ -345,7 +345,7 @@ Router.route('/rest/:_name', {
     });
 
     busboy.on('finish', Meteor.bindEnvironment(function() {
-        var nameAlreadyExists = false;
+        /*var nameAlreadyExists = false;
         Geodata.find({user: username}).forEach(data => {
             if(data.name === postBody.name) {
                 nameAlreadyExists = true;
@@ -363,7 +363,7 @@ Router.route('/rest/:_name', {
             });
         
             res.end(EJSON.stringify(json, {indent: true}));
-        } else if(postBody.name === undefined || postBody.name === undefined || postBody.description === undefined || postBody.date === undefined) {
+        } else */if(postBody.name === undefined || postBody.name === undefined || postBody.description === undefined || postBody.date === undefined) {
             var json = {
                 title: 'Not all required parameters are entered. Please specify name, title, description and date',
                 status: 400
@@ -396,10 +396,12 @@ Router.route('/rest/:_name', {
                 attachmentIds: [attachment._id]
             }});
 
+            var geodata = Geodata.findOne({name: this.params._name});
+            var geodataId = geodata._id;
             var zipFile = 'Attachment-' + attachment._id + '-' + fileName;
             var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
             
-            Meteor.call('runDockerImageFromServer', username, dataId, zipName, 'update');
+            Meteor.call('runDockerImageFromServer', username, geodataId, zipName, 'update');
             Meteor.call('sendMailFromServer', username, dataId, 'updated');
 
             res.writeHead(200, {});
