@@ -5,6 +5,29 @@ export const GeodataSchema = new SimpleSchema({
   name: {
     type: String,
     label: 'Naam',
+    regEx: /^\S*$/,
+    custom: function() {
+      var id = this.userId;
+      if(id != null) {
+        var username = Meteor.user().username;
+
+        if(this.isInsert) {
+          var data = Geodata.findOne({user: username, name: this.value});
+          if(data === undefined) {
+            return undefined;
+          } else {
+            return 'notUnique';
+          }
+        } else if(this.isUpdate) {
+          var data = Geodata.find({user: username, name: this.value}).fetch();
+          if(data.length > 0 && data[0]._id !== this.docId) {
+            return 'notUnique';
+          } else {
+            return undefined;
+          }
+        }
+      }
+    }
   },
   title: {
     type: String,
@@ -23,8 +46,11 @@ export const GeodataSchema = new SimpleSchema({
   },
   user: {
     type: String,
-    defaultValue: function() {
-      return Meteor.user().username;
+    autoValue: function() {
+      var id = this.userId;
+      if(id != null) {
+        return Meteor.user().username;
+      }
     }
   },
   lastRevisionDate: {
