@@ -6,7 +6,7 @@ import { Geodata, GeodataSchema } from '../../api/collections/geodata';
 import { CouplingAttData, CouplingAttDataSchema } from '../../api/collections/couplingAttData';
 import { Buffer } from 'buffer';
 
-Router.route('/rest', {
+Router.route('/api/form/v1', {
 	where: 'server',
 	onBeforeAction: function(req, res, next) {
         if(req.headers.accept !== 'application/json') {
@@ -197,7 +197,7 @@ Router.route('/rest', {
     req.pipe(busboy);
 });
 
-Router.route('/rest/:_name', {
+Router.route('/api/form/v1/:_name', {
 	where: 'server',
 	onBeforeAction: function(req, res, next) {
         var geodata = Geodata.findOne({name: this.params._name});
