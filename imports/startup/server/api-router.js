@@ -105,7 +105,6 @@ Router.route('/api/form/v1', {
 
     // Handle POST request
     busboy.on('finish', Meteor.bindEnvironment(function() {
-        // https://stuk.github.io/jszip/documentation/howto/read_zip.html
         var JSZip = require('jszip');
         JSZip.loadAsync(buf).then(function(zip) {
             var objectKey = Object.keys(zip.files)[0];
