@@ -10,31 +10,20 @@ Router.route('/api/form/v1', {
 	where: 'server',
 	onBeforeAction: function(req, res, next) {
         if(req.headers.accept !== 'application/json') {
-            var json = {
-                title: 'Invalid response format. Can only return application/json',
-                status: 406
-            };
-        
-            res.writeHead(406, {
-                'Content-Type': 'application/json; charset=UTF-8'
-            });
-        
-            res.end(EJSON.stringify(json, {indent: true}));
+            var title = 'Invalid response format. Can only return application/json';
+            var status = 406;
+
+            writeResponse(res, title, status);
         } else if((req.headers['content-type']).indexOf('multipart/form-data') === -1) {
-            var json = {
-                title: 'Invalid upload format. Should be multipart/form-data',
-                status: 415
-            };
-        
-            res.writeHead(415, {
-                'Content-Type': 'application/json; charset=UTF-8'
-            });
-        
-            res.end(EJSON.stringify(json, {indent: true}));
+            var title = 'Invalid upload format. Should be multipart/form-data';
+            var status = 415;
+            
+            writeResponse(res, title, status);
         } else if(req.method === 'POST') {
 			var authHeader = req.headers.authorization.split(' ');
 			var authType = authHeader[0];
             var authEncoded = authHeader[1];
+            var responseJson = {};
             
             // Check if basic authorization
             if(authType === 'Basic') {
@@ -49,55 +38,31 @@ Router.route('/api/form/v1', {
 
                     // Check if password is valid
                     if(result.error) {
-                        var json = {
-                            title: 'Invalid password.',
-                            status: 401
-                        };
-                    
-                        res.writeHead(401, {
-                            'Content-Type': 'application/json; charset=UTF-8'
-                        });
-                    
-                        res.end(EJSON.stringify(json, {indent: true}));
+                        var title = 'Invalid password.';
+                        var status = 401;
+                        
+                        writeResponse(res, title, status);
                     } else {
                         // Authentication success. Proceed request method in next call.
                         next();
                     }
                 } else {
-                    var json = {
-                        title: 'Invalid username. User ' + username + ' does not exist.',
-                        status: 401
-                    };
-                
-                    res.writeHead(401, {
-                        'Content-Type': 'application/json; charset=UTF-8'
-                    });
-                
-                    res.end(EJSON.stringify(json, {indent: true}));
+                    var title = 'Invalid username. User ' + username + ' does not exist.';
+                    var status = 401;
+                    
+                    writeResponse(res, title, status);
                 }
             } else {
-                var json = {
-					title: 'Invalid login method. Please use Basic Authorization',
-					status: 401
-				};
-			
-				res.writeHead(401, {
-					'Content-Type': 'application/json; charset=UTF-8'
-				});
-			
-                res.end(EJSON.stringify(json, {indent: true}));
+                var title = 'Invalid login method. Please use Basic Authorization';
+                var status = 401;
+				
+                writeResponse(res, title, status);
             }
 		} else {
-			var json = {
-                title: 'Method ' + req.method + ' not allowed!',
-                status: 405
-            };
-        
-            res.writeHead(405, {
-                'Content-Type': 'application/json; charset=UTF-8'
-            });
-        
-            res.end(EJSON.stringify(json, {indent: true}));
+            var title = 'Method ' + req.method + ' not allowed!';
+            var status = 405;
+            
+            writeResponse(res, title, status);
 		}
 	}
 }).post(function(req, res) {
@@ -111,6 +76,7 @@ Router.route('/api/form/v1', {
     var busboy = new Busboy({ headers: req.headers });
     var inspect = require('util').inspect;
 
+    var buf;
     var fileName;
     var newFile = new FS.File();
     
@@ -120,7 +86,7 @@ Router.route('/api/form/v1', {
             bufs.push(data);
         });
         file.on('end', Meteor.bindEnvironment(function() {
-            var buf = Buffer.concat(bufs);
+            buf = Buffer.concat(bufs);
             newFile.attachData(buf, {type: mimetype}, function(err) {
                 if(err) {
                     console.log(err);
@@ -136,6 +102,14 @@ Router.route('/api/form/v1', {
     });
 
     busboy.on('finish', Meteor.bindEnvironment(function() {
+        // https://stuk.github.io/jszip/documentation/howto/read_zip.html
+        var JSZip = require('jszip');
+        JSZip.loadAsync(buf).then(function(zip) {
+            var objectKey = Object.keys(zip.files)[0];
+            var shapename = objectKey.split('.')[0];
+            console.log(shapename);
+        });
+
         var nameAlreadyExists = false;
         Geodata.find({user: username}).forEach(data => {
             if(data.name === postBody.name) {
@@ -144,28 +118,15 @@ Router.route('/api/form/v1', {
         });
 
         if(nameAlreadyExists) {
-            var json = {
-                title: 'Dataset with name ' + postBody.name + ' already exists!',
-                status: 409
-            };
-        
-            res.writeHead(409, {
-                'Content-Type': 'application/json; charset=UTF-8'
-            });
-        
-            res.end(EJSON.stringify(json, {indent: true}));
+            var title = 'Dataset with name ' + postBody.name + ' already exists!';
+            var status = 409;
+            
+            writeResponse(res, title, status);
         } else if(postBody.name === undefined || postBody.name === undefined || postBody.description === undefined || postBody.date === undefined) {
-            var json = {
-                title: 'Not all required parameters are entered. Please specify name, title, description and date',
-                status: 400
-            };
-        
-            res.writeHead(400, {
-                'Content-Type': 'application/json; charset=UTF-8'
-            });
-        
-            res.end(EJSON.stringify(json, {indent: true}));
-            return;
+            var title = 'Not all required parameters are entered. Please specify name, title, description and date';
+            var status = 400;
+            
+            writeResponse(res, title, status);
         } else {
             var attachment = Attachment.insert(newFile, Meteor.bindEnvironment(function(err, fileObj) {
                 if(err) {
@@ -189,8 +150,7 @@ Router.route('/api/form/v1', {
             Meteor.call('runDockerImageFromServer', username, dataId, zipName, 'insert');
             Meteor.call('sendMailFromServer', username, dataId, 'inserted');
 
-            res.writeHead(201, {});
-            res.end();
+            writeResponse(res, '', 201);
         }
     }));
 
@@ -202,27 +162,15 @@ Router.route('/api/form/v1/:_name', {
 	onBeforeAction: function(req, res, next) {
         var geodata = Geodata.findOne({name: this.params._name});
         if(geodata === undefined) {
-            var json = {
-                title: 'No dataset with name ' + this.params._name + ' found.',
-                status: 404
-            };
-        
-            res.writeHead(404, {
-                'Content-Type': 'application/json; charset=UTF-8'
-            });
-        
-            res.end(EJSON.stringify(json, {indent: true}));
+            var title = 'No dataset with name ' + this.params._name + ' found.';
+            var status = 404;
+            
+            writeResponse(res, title, status);
         } else if(req.headers.accept !== 'application/json') {
-            var json = {
-                title: 'Invalid response format. Can only return application/json',
-                status: 406
-            };
-        
-            res.writeHead(406, {
-                'Content-Type': 'application/json; charset=UTF-8'
-            });
-        
-            res.end(EJSON.stringify(json, {indent: true}));
+            var title = 'Invalid response format. Can only return application/json';
+            var status = 406;
+            
+            writeResponse(res, title, status);
         } else if(req.method === 'DELETE' || req.method === 'PUT') {
 			var authHeader = req.headers.authorization.split(' ');
 			var authType = authHeader[0];
@@ -241,66 +189,36 @@ Router.route('/api/form/v1/:_name', {
 
                     // Check if password is valid
                     if(result.error) {
-                        var json = {
-                            title: 'Invalid password.',
-                            status: 401
-                        };
-                    
-                        res.writeHead(401, {
-                            'Content-Type': 'application/json; charset=UTF-8'
-                        });
-                    
-                        res.end(EJSON.stringify(json, {indent: true}));
+                        var title = 'Invalid password.';
+                        var status = 401;
+                        
+                        writeResponse(res, title, status);
                     } else {
                         // Authentication success. Proceed request method in next call.
                         next();
                     }
                 } else {
-                    var json = {
-                        title: 'Invalid username. User ' + username + ' does not exist.',
-                        status: 401
-                    };
-                
-                    res.writeHead(401, {
-                        'Content-Type': 'application/json; charset=UTF-8'
-                    });
-                
-                    res.end(EJSON.stringify(json, {indent: true}));
+                    var title = 'Invalid username. User ' + username + ' does not exist.';
+                    var status = 401;
+                    
+                    writeResponse(res, title, status);
                 }
             } else {
-                var json = {
-					title: 'Invalid login method. Please use Basic Authorization',
-					status: 401
-				};
-			
-				res.writeHead(401, {
-					'Content-Type': 'application/json; charset=UTF-8'
-				});
-			
-                res.end(EJSON.stringify(json, {indent: true}));
+                var title = 'Invalid login method. Please use Basic Authorization';
+                var status = 401;
+				
+                writeResponse(res, title, status);
             }
 		} else if((req.headers['content-type']).indexOf('multipart/form-data') === -1 && req.method === 'PUT') {
-            var json = {
-                title: 'Invalid upload format. Should be multipart/form-data',
-                status: 415
-            };
-        
-            res.writeHead(415, {
-                'Content-Type': 'application/json; charset=UTF-8'
-            });
-        
-            res.end(EJSON.stringify(json, {indent: true}))
+            var title = 'Invalid upload format. Should be multipart/form-data';
+            var status = 415;
+            
+            writeResponse(res, title, status);
         } else {
-			var json = {
-                title: 'Method ' + req.method + ' not allowed!',
-                status: 405
-            };
-        
-            res.writeHead(405, {
-                'Content-Type': 'application/json; charset=UTF-8'
-            });
-        
-            res.end(EJSON.stringify(json, {indent: true}));
+            var title = 'Method ' + req.method + ' not allowed!';
+            var status = 405;
+            
+            writeResponse(res, title, status);
 		}
 	}
 }).put(function(req, res) {
@@ -345,35 +263,11 @@ Router.route('/api/form/v1/:_name', {
     });
 
     busboy.on('finish', Meteor.bindEnvironment(function() {
-        /*var nameAlreadyExists = false;
-        Geodata.find({user: username}).forEach(data => {
-            if(data.name === postBody.name) {
-                nameAlreadyExists = true;
-            }
-        });
-
-        if(nameAlreadyExists) {
-            var json = {
-                title: 'Dataset with name ' + postBody.name + ' already exists!',
-                status: 409
-            };
-        
-            res.writeHead(409, {
-                'Content-Type': 'application/json; charset=UTF-8'
-            });
-        
-            res.end(EJSON.stringify(json, {indent: true}));
-        } else */if(postBody.name === undefined || postBody.name === undefined || postBody.description === undefined || postBody.date === undefined) {
-            var json = {
-                title: 'Not all required parameters are entered. Please specify name, title, description and date',
-                status: 400
-            };
-        
-            res.writeHead(400, {
-                'Content-Type': 'application/json; charset=UTF-8'
-            });
-        
-            res.end(EJSON.stringify(json, {indent: true}));
+        if(postBody.name === undefined || postBody.name === undefined || postBody.description === undefined || postBody.date === undefined) {
+            var title = 'Not all required parameters are entered. Please specify name, title, description and date';
+            var status = 400;
+            
+            writeResponse(res, title, status);
         } else {
             Attachment.remove({_id: attIds[0]});
             var attachment = Attachment.insert(newFile, Meteor.bindEnvironment(function(err, fileObj) {
@@ -402,8 +296,7 @@ Router.route('/api/form/v1/:_name', {
             Meteor.call('runDockerImageFromServer', username, geodataId, zipName, 'update');
             Meteor.call('sendMailFromServer', username, geodataId, 'updated');
 
-            res.writeHead(200, {});
-            res.end();
+            writeResponse(res, '', 200);
         }
     }));
 
@@ -434,6 +327,17 @@ Router.route('/api/form/v1/:_name', {
     
     Meteor.call('sendMailFromServer', username, geodataId, 'deleted');
 
-    res.writeHead(200, {});
-    res.end();
+    writeResponse(res, '', 200);
 });
+
+function writeResponse(res, title, status) {
+    var responseJson = {};
+    responseJson.title = title;
+    responseJson.status = status;
+
+    res.writeHead(status, {
+        'Content-Type': 'application/json; charset=UTF-8'
+    });
+
+    res.end(EJSON.stringify(responseJson, {indent: true}));
+}
