@@ -58,6 +58,10 @@ export const GeodataSchema = new SimpleSchema({
     autoValue: function() {
         return new Date();
     }
+  },
+  tableName: {
+    type: String,
+    optional: true
   }
 });
 

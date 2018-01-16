@@ -9,6 +9,7 @@
     "bcrypt": "^1.0.2",
     "busboy": "^0.2.14",
     "file-system": "^2.2.2",
+    "jszip": "^3.1.5",
     "meteor-node-stubs": "^0.2.5",
     "path": "^0.12.7"
   }
