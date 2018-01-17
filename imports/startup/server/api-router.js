@@ -105,55 +105,75 @@ Router.route('/api/form/v1', {
 
     // Handle POST request
     busboy.on('finish', Meteor.bindEnvironment(function() {
-        var JSZip = require('jszip');
-        JSZip.loadAsync(buf).then(function(zip) {
-            var objectKey = Object.keys(zip.files)[0];
-            var shapename = objectKey.split('.')[0];
-            var tables = Geodata.find({user: username, tableName: shapename}).fetch();
-            var nameExists = Geodata.find({user: username, name: postBody.name}).fetch();
-        
-            if(tables.length > 0) {
-                var title = 'Shapefile with name ' + shapename + ' already exists!';
-                var status = 409;
+        if(fileName.indexOf('.zip') !== -1) {
+            var JSZip = require('jszip');
+            JSZip.loadAsync(buf).then(function(zip) {
+                var filesInZip = zip.files;
+                var extensionsPresent = Meteor.call('areExtensionsPresent', filesInZip);
+                var doubleExtension = Meteor.call('areExtensionsDouble', filesInZip);
+                var objectKey = Object.keys(filesInZip)[0];
+                var shapename = objectKey.split('.')[0];
+                var tables = Geodata.find({user: username, tableName: shapename}).fetch();
+                var nameExists = Geodata.find({user: username, name: postBody.name}).fetch();
+            
+                if(tables.length > 0) {
+                    var title = 'Shapefile with name ' + shapename + ' already exists!';
+                    var status = 409;
 
-                writeResponse(res, title, status);
-            } else if(nameExists.length > 0) {
-                var title = 'Dataset with name ' + postBody.name + ' already exists!';
-                var status = 409;
-                
-                writeResponse(res, title, status);
-            } else if(postBody.name === undefined || postBody.name === undefined || postBody.description === undefined || postBody.date === undefined) {
-                var title = 'Not all required parameters are entered. Please specify name, title, description and date';
-                var status = 400;
-                
-                writeResponse(res, title, status);
-            } else {
-                var attachment = Attachment.insert(newFile, Meteor.bindEnvironment(function(err, fileObj) {
-                    if(err) {
-                        console.log(err);
-                    }
-                    fileObj.name(fileName);
-                }));
-                var pattern = /(\d{2})-(\d{2})-(\d{4})/;
-                var dataId = Geodata.insert({
-                    name: postBody.name,
-                    title: postBody.title,
-                    description: postBody.description,
-                    date: new Date(postBody.date.replace(pattern, '$3-$2-$1')),
-                    user: username,
-                    tableName: shapename
-                });
-                CouplingAttData.insert({dataId: dataId, attachmentIds: [attachment._id]});
+                    writeResponse(res, title, status);
+                } else if(!extensionsPresent) {
+                    var title = 'Uploaded zip should at least contain a .shp, .shx and .dbf file!';
+                    var status = 409;
 
-                var zipFile = 'Attachment-' + attachment._id + '-' + fileName;
-                var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
-                
-                Meteor.call('runDockerImageFromServer', username, dataId, zipName, 'insert');
-                Meteor.call('sendMailFromServer', username, dataId, 'inserted');
+                    writeResponse(res, title, status);
+                } else if(doubleExtension) {
+                    var title = 'Extensions .shp, .shx and .dbf can occur only once per zip file!';
+                    var status = 409;
 
-                writeResponse(res, '', 201);
-            }
-        });
+                    writeResponse(res, title, status);
+                } else if(nameExists.length > 0) {
+                    var title = 'Dataset with name ' + postBody.name + ' already exists!';
+                    var status = 409;
+                    
+                    writeResponse(res, title, status);
+                } else if(postBody.name === undefined || postBody.name === undefined || postBody.description === undefined || postBody.date === undefined) {
+                    var title = 'Not all required parameters are entered. Please specify name, title, description and date';
+                    var status = 400;
+                    
+                    writeResponse(res, title, status);
+                } else {
+                    var attachment = Attachment.insert(newFile, Meteor.bindEnvironment(function(err, fileObj) {
+                        if(err) {
+                            console.log(err);
+                        }
+                        fileObj.name(fileName);
+                    }));
+                    var pattern = /(\d{2})-(\d{2})-(\d{4})/;
+                    var dataId = Geodata.insert({
+                        name: postBody.name,
+                        title: postBody.title,
+                        description: postBody.description,
+                        date: new Date(postBody.date.replace(pattern, '$3-$2-$1')),
+                        user: username,
+                        tableName: shapename
+                    });
+                    CouplingAttData.insert({dataId: dataId, attachmentIds: [attachment._id]});
+
+                    var zipFile = 'Attachment-' + attachment._id + '-' + fileName;
+                    var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
+                    
+                    Meteor.call('runDockerImageFromServer', username, dataId, zipName, 'insert');
+                    Meteor.call('sendMailFromServer', username, dataId, 'inserted');
+
+                    writeResponse(res, '', 201);
+                }
+            });
+        } else {
+            var title = 'Uploaded file must be a .zip!';
+            var status = 409;
+
+            writeResponse(res, title, status);
+        }
     }));
 
     req.pipe(busboy);
@@ -264,67 +284,87 @@ Router.route('/api/form/v1/:_name', {
 
     // handle PUT request
     busboy.on('finish', Meteor.bindEnvironment(function() {
-        var JSZip = require('jszip');
-        JSZip.loadAsync(buf).then(function(zip) {
-            var objectKey = Object.keys(zip.files)[0];
-            var shapename = objectKey.split('.')[0];
-            var dataToUpdate = Geodata.findOne({name: datasetName, user: username});
-            var tableExists = Geodata.find({user: username, tableName: shapename, name: {$ne: datasetName}}).fetch();
-            var nameExists = Geodata.find({user: username, name: postBody.name}).fetch();
+        if(fileName.indexOf('.zip') !== -1) {
+            var JSZip = require('jszip');
+            JSZip.loadAsync(buf).then(function(zip) {
+                var filesInZip = zip.files;
+                var extensionsPresent = Meteor.call('areExtensionsPresent', filesInZip);
+                var doubleExtension = Meteor.call('areExtensionsDouble', filesInZip);
+                var objectKey = Object.keys(filesInZip)[0];
+                var shapename = objectKey.split('.')[0];
+                var dataToUpdate = Geodata.findOne({name: datasetName, user: username});
+                var tableExists = Geodata.find({user: username, tableName: shapename, name: {$ne: datasetName}}).fetch();
+                var nameExists = Geodata.find({user: username, name: postBody.name}).fetch();
 
-            if(postBody.name === undefined || postBody.name === undefined || postBody.description === undefined || postBody.date === undefined) {
-                var title = 'Not all required parameters are entered. Please specify name, title, description and date';
-                var status = 400;
-                
-                writeResponse(res, title, status);
-            } else if(nameExists.length > 0 && postBody.name !== datasetName) {
-                var title = 'Dataset with name ' + postBody.name + ' already exists!';
-                var status = 409;
+                if(postBody.name === undefined || postBody.name === undefined || postBody.description === undefined || postBody.date === undefined) {
+                    var title = 'Not all required parameters are entered. Please specify name, title, description and date';
+                    var status = 400;
+                    
+                    writeResponse(res, title, status);
+                } else if(!extensionsPresent) {
+                    var title = 'Uploaded zip should at least contain a .shp, .shx and .dbf file!';
+                    var status = 409;
 
-                writeResponse(res, title, status);
-            } else if(tableExists.length > 0) {
-                var title = 'Shapefile with name ' + shapename + ' already exists!';
-                var status = 409;
+                    writeResponse(res, title, status);
+                } else if(doubleExtension) {
+                    var title = 'Extensions .shp, .shx and .dbf can occur only once per zip file!';
+                    var status = 409;
 
-                writeResponse(res, title, status);
-            } else {
-                var geodata = Geodata.findOne({name: datasetName});
-                var geodataId = geodata._id;
-                var couplingObject = CouplingAttData.findOne({dataId: geodataId});
-                var couplingId = couplingObject._id;
-                var attIds = couplingObject.attachmentIds;
+                    writeResponse(res, title, status);
+                } else if(nameExists.length > 0 && postBody.name !== datasetName) {
+                    var title = 'Dataset with name ' + postBody.name + ' already exists!';
+                    var status = 409;
 
-                Attachment.remove({_id: attIds[0]});
-                var attachment = Attachment.insert(newFile, Meteor.bindEnvironment(function(err, fileObj) {
-                    if(err) {
-                        console.log(err);
-                    }
-                    fileObj.name(fileName);
-                }));
-    
-                var pattern = /(\d{2})-(\d{2})-(\d{4})/;
-                Geodata.update({_id: geodataId}, {$set: {
-                    name: postBody.name,
-                    title: postBody.title,
-                    description: postBody.description,
-                    date: new Date(postBody.date.replace(pattern, '$3-$2-$1')),
-                    user: username,
-                    tableName: shapename
-                }});
-                CouplingAttData.update({_id: couplingId}, {$set: {
-                    dataId: geodataId,
-                    attachmentIds: [attachment._id]
-                }});
-    
-                var zipFile = 'Attachment-' + attachment._id + '-' + fileName;
-                var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
-                
-                Meteor.call('runDockerImageFromServer', username, geodataId, zipName, 'update');
-                Meteor.call('sendMailFromServer', username, geodataId, 'updated');
-    
-                writeResponse(res, '', 200);
-            }
-        });
+                    writeResponse(res, title, status);
+                } else if(tableExists.length > 0) {
+                    var title = 'Shapefile with name ' + shapename + ' already exists!';
+                    var status = 409;
+
+                    writeResponse(res, title, status);
+                } else {
+                    var geodata = Geodata.findOne({name: datasetName});
+                    var geodataId = geodata._id;
+                    var couplingObject = CouplingAttData.findOne({dataId: geodataId});
+                    var couplingId = couplingObject._id;
+                    var attIds = couplingObject.attachmentIds;
+
+                    Attachment.remove({_id: attIds[0]});
+                    var attachment = Attachment.insert(newFile, Meteor.bindEnvironment(function(err, fileObj) {
+                        if(err) {
+                            console.log(err);
+                        }
+                        fileObj.name(fileName);
+                    }));
+        
+                    var pattern = /(\d{2})-(\d{2})-(\d{4})/;
+                    Geodata.update({_id: geodataId}, {$set: {
+                        name: postBody.name,
+                        title: postBody.title,
+                        description: postBody.description,
+                        date: new Date(postBody.date.replace(pattern, '$3-$2-$1')),
+                        user: username,
+                        tableName: shapename
+                    }});
+                    CouplingAttData.update({_id: couplingId}, {$set: {
+                        dataId: geodataId,
+                        attachmentIds: [attachment._id]
+                    }});
+        
+                    var zipFile = 'Attachment-' + attachment._id + '-' + fileName;
+                    var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
+                    
+                    Meteor.call('runDockerImageFromServer', username, geodataId, zipName, 'update');
+                    Meteor.call('sendMailFromServer', username, geodataId, 'updated');
+        
+                    writeResponse(res, '', 200);
+                }
+            });
+        } else {
+            var title = 'Uploaded file must be a .zip!';
+            var status = 409;
+
+            writeResponse(res, title, status);
+        }
     }));
 
     req.pipe(busboy);
