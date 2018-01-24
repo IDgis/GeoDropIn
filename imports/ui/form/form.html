@@ -8,6 +8,7 @@
 		<div class="col-xs-offset-2 col-xs-8">
 			{{#autoForm collection=geodata schema=geodataSchema id="geodataform" type=geodataType doc=geodataDoc}}
 				<fieldset>
+					{{> afQuickField name="name" placeholder="schemaLabel"}}
 					{{> afQuickField name="title" placeholder="schemaLabel"}}
 					{{> afQuickField name="description" placeholder="schemaLabel"}}
 					{{> afQuickField name="date"}}
@@ -22,7 +23,7 @@
 								</p>
 							{{/each}}
 						</div>
-						<input type="file" data-index="0" class="js-attachment">
+						<input type="file" accept="application/x-zip-compressed, application/zip" data-index="0" class="js-attachment">
 					</div>
 				</div>
 				<div class="div-with-margin">

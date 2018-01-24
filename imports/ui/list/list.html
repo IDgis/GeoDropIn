@@ -18,16 +18,18 @@
 			<thead>
 				<tr>
 					<th class="col-xs-1"><span>Actie</span></th>
+					<th class="col-xs-1"><span>Naam</span></th>
 					<th class="col-xs-5"><span>Titel</span></th>
 					<th class="col-xs-2"><span>Datum</span></th>
 					<th class="col-xs-2"><span>Bijlage</span></th>
-					<th class="col-xs-2"><span>Verwijderen</span></th>
+					<th class="col-xs-1"><span>Verwijderen</span></th>
 				</tr>
 			</thead>
 			<tbody>
 				{{#each showGeodata}}
 					<tr>
 						<td class="col-xs-1"><a href="/form/edit/{{_id}}"><span class="glyphicon glyphicon-edit"></span></a></td>
+						<td class="col-cs-1">{{name}}</td>
 						<td class="col-xs-5">{{title}}</td>
 						<td class="col-xs-2">{{formatDate date}}</td>
 						<td class="col-xs-2">
@@ -37,7 +39,7 @@
 								{{/each}}
 							{{/each}}
 						</td>
-						<td class="col-xs-2"><span id={{_id}} class="glyphicon glyphicon-remove js-remove-data"></span></td>
+						<td class="col-xs-1"><span id={{_id}} class="glyphicon glyphicon-remove js-remove-data"></span></td>
 					</tr>
 				{{/each}}
 			</tbody>

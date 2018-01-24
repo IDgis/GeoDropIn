@@ -13,6 +13,10 @@ Router.configure({
 	layoutTemplate: 'main'
 });
 
+Router.route('/', function() {
+	this.redirect('/index');
+})
+
 Router.route('/index', function() {
 	this.render('list');
 	}, {

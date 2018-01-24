@@ -54,6 +54,17 @@ Template.form.events({
 		Router.go('list');
 	},
 	'change .js-attachment': function(e) {
+		var file = e.target.files[0];
+		if(file) {
+			// https://stuk.github.io/jszip/documentation/howto/read_zip.html
+			// Read the shapefile names in the uploaded zip
+			var JSZip = require('jszip');
+        	JSZip.loadAsync(file).then(function(zip) {
+            	var objectKey = Object.keys(zip.files)[0];
+				var shapename = objectKey.split('.')[0];
+			});
+		}
+
 		var index = $(e.target).attr('data-index');
 		var attachmentIds = Session.get('attachmentIds');
 		
