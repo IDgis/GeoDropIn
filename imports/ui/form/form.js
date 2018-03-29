@@ -8,6 +8,26 @@ import { CouplingAttData, CouplingAttDataSchema } from '/imports/api/collections
 Template.form.onRendered(function() {
 	Session.set('attachmentIds', []);
 	Session.set('attachmentRemoveIds', []);
+	
+	if(Session.get('selectedGeodataId') !== null) {
+		var atts = CouplingAttData.findOne({dataId: Session.get('selectedGeodataId')});
+		if(typeof atts !== 'undefined') {
+			Meteor.call('getAttachment', atts.attachmentIds, function(err, result) {
+				if(result) {
+					result.forEach(function(item) {
+						var element = '<p class="negate-margin">' + 
+							item.name + 
+							' <span id="' + 
+							item.id + 
+							'"class="glyphicon glyphicon-remove js-remove-previous-attachment"></span>' +
+							'</p>';
+						
+						$('#saved-atts').append(element);
+					});
+				}
+			});
+		}
+	}
 });
 
 Template.form.helpers({
@@ -30,22 +50,6 @@ Template.form.helpers({
 	},
 	geodataSchema: function() {
 		return GeodataSchema;
-	},
-	showAttachmentNames: function() {
-		var attObjects = [];
-		
-		if(Session.get('selectedGeodataId') !== null) {
-			var atts = CouplingAttData.findOne({dataId: Session.get('selectedGeodataId')});
-			if(typeof atts !== 'undefined') {
-				atts.attachmentIds.forEach(function(item) {
-					var att = Attachment.findOne({_id: item});
-					var obj = {'id': att._id, 'name': att.copies.Attachment.key};
-					attObjects.push(obj);
-				});
-			}
-		}
-		
-		return attObjects;
 	}
 });
 
@@ -133,50 +137,42 @@ AutoForm.addHooks('geodataform', {
 	},
 	after: {
 		insert: function(error, result) {
-			var dataId = result;
-			var attachmentItems = Session.get('attachmentIds');
-			var attachmentIds = [];
-			
-			attachmentItems.forEach(function(item) {
-				attachmentIds.push(item.fileId);
-			});
-			
-			CouplingAttData.insert({dataId: dataId, attachmentIds: attachmentIds});
-			
-			var coupAttRecord = CouplingAttData.findOne({dataId: dataId});
-			var attRecord = Attachment.findOne({_id: coupAttRecord.attachmentIds[0]});
-			var zipFile = attRecord.copies.Attachment.key;
-			var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
-			
-			Meteor.call('runDockerImage', dataId, zipName, 'insert');
-			Meteor.call('sendMail', dataId, 'inserted');
+			if(result) {
+				var dataId = result;
+				var attachmentItems = Session.get('attachmentIds');
+				var attachmentIds = [];
+				
+				attachmentItems.forEach(function(item) {
+					attachmentIds.push(item.fileId);
+				});
+				
+				CouplingAttData.insert({dataId: dataId, attachmentIds: attachmentIds});
+				Meteor.call('runDockerImage', dataId, attachmentIds[0], 'insert');
+				Meteor.call('sendMail', dataId, 'inserted');
+			}
 		},
 		update: function(error, result) {
-			var attRemove = Session.get('attachmentRemoveIds');
-			var attCoupling = CouplingAttData.findOne({dataId: this.docId});
-			var attIds = attCoupling.attachmentIds;
-			
-			attRemove.forEach(function(item) {
-				var attIndex = attIds.indexOf(item);
-				if(attIndex > -1) {
-					attIds.splice(attIndex, 1);
-					Attachment.remove({_id: item});
-				}
-			});
-			
-			var attachmentItems = Session.get('attachmentIds');
-			attachmentItems.forEach(function(item) {
-				attIds.push(item.fileId);
-			});
-			
-			var couplingId = CouplingAttData.findOne({dataId: this.docId})._id;
-			CouplingAttData.update({_id: couplingId}, {$set: {attachmentIds: attIds}});
-			
-			var coupAttRecord = CouplingAttData.findOne({dataId: this.docId});
-			var attRecord = Attachment.findOne({_id: coupAttRecord.attachmentIds[0]});
-			var zipFile = attRecord.copies.Attachment.key;
-			var zipName = zipFile.substr(0, zipFile.indexOf('.zip')); 
-			Meteor.call('runDockerImage', this.docId, zipName, 'update');
+			if(result) {
+				var attRemove = Session.get('attachmentRemoveIds');
+				var attCoupling = CouplingAttData.findOne({dataId: this.docId});
+				var attIds = attCoupling.attachmentIds;
+				
+				attRemove.forEach(function(item) {
+					var attIndex = attIds.indexOf(item);
+					if(attIndex > -1) {
+						attIds.splice(attIndex, 1);
+						Attachment.remove({_id: item});
+					}
+				});
+				
+				var attachmentItems = Session.get('attachmentIds');
+				attachmentItems.forEach(function(item) {
+					attIds.push(item.fileId);
+				});
+				
+				CouplingAttData.update({_id: attCoupling._id}, {$set: {attachmentIds: attIds}});
+				Meteor.call('runDockerImage', this.docId, attIds[0], 'update');
+			}
 		}
 	},
 	onSuccess: function() {

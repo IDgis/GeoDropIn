@@ -9,7 +9,7 @@ import { Buffer } from 'buffer';
 Router.route('/api/form/v1', {
 	where: 'server',
 	onBeforeAction: function(req, res, next) {
-        if(req.headers.accept !== 'application/json') {
+        if(req.headers.accept.indexOf('application/json') === 0) {
             var title = 'Invalid response format. Can only return application/json';
             var status = 406;
 
@@ -164,7 +164,7 @@ Router.route('/api/form/v1', {
                     
                     Meteor.call('runDockerImageFromServer', username, dataId, zipName, 'insert');
                     Meteor.call('sendMailFromServer', username, dataId, 'inserted');
-
+                    
                     writeResponse(res, '', 201);
                 }
             });
@@ -188,7 +188,7 @@ Router.route('/api/form/v1/:_name', {
             var status = 404;
             
             writeResponse(res, title, status);
-        } else if(req.headers.accept !== 'application/json') {
+        } else if(req.headers.accept.indexOf('application/json') === 0) {
             var title = 'Invalid response format. Can only return application/json';
             var status = 406;
             
