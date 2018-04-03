@@ -1,4 +1,7 @@
-import './startup.js';
+import './login.js';
+import './publish.js';
+import './docker.js';
+import './attachment.js';
 import './router.js';
 import './methods.js';
 import './api-router.js';

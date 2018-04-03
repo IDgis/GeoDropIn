@@ -1,3 +1,3 @@
 import './router.js';
-import './startup.js';
+import './login.js';
 import '/lib/useraccounts-configuration.js';

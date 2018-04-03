@@ -69,7 +69,31 @@ export const Geodata = new Mongo.Collection('geodata');
 Geodata.attachSchema(GeodataSchema);
 
 Geodata.allow({
-	insert: function() {return true;},
-	update: function() {return true;},
-	remove: function() {return true;}
+	insert: function() {
+		if(Meteor.user()) {
+			return true;
+		}
+		
+		return false;
+	},
+	
+	update: function(userId, doc) {
+		if(Meteor.user()) {
+			if(Meteor.user().username === doc.user) {
+				return true;
+			}
+		}
+		
+		return false;
+	},
+	
+	remove: function(userId, doc) {
+		if(Meteor.user()) {
+			if(Meteor.user().username === doc.user) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 });
