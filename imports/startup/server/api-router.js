@@ -9,7 +9,7 @@ import { Buffer } from 'buffer';
 Router.route('/api/form/v1', {
 	where: 'server',
 	onBeforeAction: function(req, res, next) {
-        if(req.headers.accept.indexOf('application/json') === 0) {
+        if(req.headers.accept.indexOf('application/json') !== 0) {
             var title = 'Invalid response format. Can only return application/json';
             var status = 406;
 
@@ -188,7 +188,7 @@ Router.route('/api/form/v1/:_name', {
             var status = 404;
             
             writeResponse(res, title, status);
-        } else if(req.headers.accept.indexOf('application/json') === 0) {
+        } else if(req.headers.accept.indexOf('application/json') !== 0) {
             var title = 'Invalid response format. Can only return application/json';
             var status = 406;
             
