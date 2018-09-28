@@ -17,9 +17,9 @@ Meteor.methods({
 				if(Meteor.user().username === 'rijssenholten') {
 					var oracleUser = process.env.RIJSSENHOLTEN_ORACLE_DB_USER;
 					var oraclePassword = process.env.RIJSSENHOLTEN_ORACLE_DB_PASSWORD;
-				} else if(Meteor.user().username === 'kragten') {
-					var oracleUser = process.env.KRAGTEN_ORACLE_DB_USER;
-					var oraclePassword = process.env.KRAGTEN_ORACLE_DB_PASSWORD;
+				} else if(Meteor.user().username === 'berkelland') {
+					var oracleUser = process.env.BERKELLAND_ORACLE_DB_USER;
+					var oraclePassword = process.env.BERKELLAND_ORACLE_DB_PASSWORD;
 				}
 			}
 			
@@ -82,9 +82,9 @@ Meteor.methods({
 			if(username === 'rijssenholten') {
 				var oracleUser = process.env.RIJSSENHOLTEN_ORACLE_DB_USER;
 				var oraclePassword = process.env.RIJSSENHOLTEN_ORACLE_DB_PASSWORD;
-			} else if(username === 'kragten') {
-				var oracleUser = process.env.KRAGTEN_ORACLE_DB_USER;
-				var oraclePassword = process.env.KRAGTEN_ORACLE_DB_PASSWORD;
+			} else if(username === 'berkelland') {
+				var oracleUser = process.env.BERKELLAND_ORACLE_DB_USER;
+				var oraclePassword = process.env.BERKELLAND_ORACLE_DB_PASSWORD;
 			}
 		}
 		
