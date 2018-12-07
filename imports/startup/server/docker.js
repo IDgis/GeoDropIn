@@ -20,6 +20,9 @@ Meteor.methods({
 				} else if(Meteor.user().username === 'berkelland') {
 					var oracleUser = process.env.BERKELLAND_ORACLE_DB_USER;
 					var oraclePassword = process.env.BERKELLAND_ORACLE_DB_PASSWORD;
+				} else if(Meteor.user().username === 'demo') {
+				    var oracleUser = process.env.DEMO_ORACLE_DB_USER;
+				    var oraclePassword = process.env.DEMO_ORACLE_DB_PASSWORD;
 				}
 			}
 			
@@ -85,6 +88,9 @@ Meteor.methods({
 			} else if(username === 'berkelland') {
 				var oracleUser = process.env.BERKELLAND_ORACLE_DB_USER;
 				var oraclePassword = process.env.BERKELLAND_ORACLE_DB_PASSWORD;
+			} else if(username === 'demo') {
+			    var oracleUser = process.env.DEMO_ORACLE_DB_USER;
+			    var oraclePassword = process.env.DEMO_ORACLE_DB_PASSWORD;
 			}
 		}
 		
