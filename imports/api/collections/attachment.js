@@ -2,7 +2,12 @@ import { Geodata } from '/imports/api/collections/geodata.js';
 import { CouplingAttData } from '/imports/api/collections/couplingAttData.js';
 
 export const Attachment = new FS.Collection("Attachment", {
-	stores: [new FS.Store.FileSystem("Attachment", {path: '/var/lib/geodropinfiles'})]
+	stores: [
+	    new FS.Store.FileSystem("Attachment", {
+	        path: '/var/lib/geodropinfiles'
+        })
+    ],
+    chunkSize: 20 * 1024 * 1024
 });
 
 Attachment.allow({
