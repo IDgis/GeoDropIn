@@ -14,18 +14,13 @@ Meteor.methods({
 			var zipName = zipFile.substr(0, zipFile.indexOf('.zip'));
 			
 			if(Meteor.user()) {
-				if(Meteor.user().username === 'rijssenholten') {
-					var oracleUser = process.env.RIJSSENHOLTEN_ORACLE_DB_USER;
-					var oraclePassword = process.env.RIJSSENHOLTEN_ORACLE_DB_PASSWORD;
-				} else if(Meteor.user().username === 'berkelland') {
-					var oracleUser = process.env.BERKELLAND_ORACLE_DB_USER;
-					var oraclePassword = process.env.BERKELLAND_ORACLE_DB_PASSWORD;
-				} else if(Meteor.user().username === 'demo') {
-				    var oracleUser = process.env.DEMO_ORACLE_DB_USER;
-				    var oraclePassword = process.env.DEMO_ORACLE_DB_PASSWORD;
-				} else if(Meteor.user().username === 'ihm') {
-				    var oracleUser = process.env.IHM_ORACLE_DB_USER;
-				    var oraclePassword = process.env.IHM_ORACLE_DB_PASSWORD;
+			    var username = Meteor.user().username;
+				var env = Meteor.settings.private.env;
+				var matchedUsers = env.filter(obj => username === obj.meteorUsername);
+				
+				if (matchedUsers.length === 1) {
+					var oracleUser = matchedUsers[0].oracleUsername;
+					var oraclePassword = matchedUsers[0].oraclePassword;
 				}
 			}
 			
@@ -85,18 +80,12 @@ Meteor.methods({
 		var exec = Npm.require("child_process").exec;
 		
 		if(username !== undefined && username !== null) {
-			if(username === 'rijssenholten') {
-				var oracleUser = process.env.RIJSSENHOLTEN_ORACLE_DB_USER;
-				var oraclePassword = process.env.RIJSSENHOLTEN_ORACLE_DB_PASSWORD;
-			} else if(username === 'berkelland') {
-				var oracleUser = process.env.BERKELLAND_ORACLE_DB_USER;
-				var oraclePassword = process.env.BERKELLAND_ORACLE_DB_PASSWORD;
-			} else if(username === 'demo') {
-			    var oracleUser = process.env.DEMO_ORACLE_DB_USER;
-			    var oraclePassword = process.env.DEMO_ORACLE_DB_PASSWORD;
-			} else if(username === 'ihm') {
-			    var oracleUser = process.env.IHM_ORACLE_DB_USER;
-			    var oraclePassword = process.env.IHM_ORACLE_DB_PASSWORD;
+			var env = Meteor.settings.private.env;
+			var matchedUsers = env.filter(obj => username === obj.meteorUsername);
+			
+			if (matchedUsers.length === 1) {
+				var oracleUser = matchedUsers[0].oracleUsername;
+				var oraclePassword = matchedUsers[0].oraclePassword;
 			}
 		}
 		
