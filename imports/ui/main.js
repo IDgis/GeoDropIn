@@ -8,7 +8,11 @@ Template.registerHelper('formatDate', function(date) {
 Template.main.helpers({
 	userLogo: function() {
 		if(Meteor.user()) {
-			return '/logos/' + Meteor.user().username + '.png';
+			if(typeof process.env.GEODROPIN_HOST !== 'undefined') {
+				return process.env.GEODROPIN_HOST + '/resources/logos/' + Meteor.user().username + '.png';
+			} else {
+				return '/logos/' + Meteor.user().username + '.png';
+			}
 		}
 	}
 });
