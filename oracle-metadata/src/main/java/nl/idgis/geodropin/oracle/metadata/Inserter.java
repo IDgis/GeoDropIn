@@ -81,9 +81,9 @@ public class Inserter {
 		if(!"delete".equals(typeStatement)) {
 			t.fetchValuesFromJson();
 		}
-		
-		InputStream inputStream = Inserter.class
-				.getResourceAsStream("/nl/idgis/geodropin/oracle/metadata/dataset_template_" + t.client + ".xml");
+
+		InputStream inputStream = new URL(System.getenv("GEODROPIN_HOST") + "/resources/templates/dataset_template_" + t.client + ".xml")
+				.openStream();
 		
 		final String result;
 		
