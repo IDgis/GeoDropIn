@@ -32,7 +32,7 @@ public class Inserter {
 	
 	private final String client;
 	private final String typeStatement;
-	private final String crs;
+	private final Optional<String> crs;
 	private final Optional<String> physicalName;
 	
 	private final String datasetUuid;
@@ -43,7 +43,7 @@ public class Inserter {
 	private String datasetDate;
 	private String metadataDate;
 	
-	public Inserter(String client, String geodropinId, String typeStatement, String crs, Optional<String> physicalName) {
+	public Inserter(String client, String geodropinId, String typeStatement, Optional<String> crs, Optional<String> physicalName) {
 		this.client = client;
 		this.geodropinId = geodropinId;
 		this.typeStatement = typeStatement;
@@ -69,13 +69,15 @@ public class Inserter {
 		
 		String client = args[1];
 		String geodropinId = args[2];
-		String crs = args[3];
-		
+
+		Optional<String> crs;
 		Optional<String> physicalName;
 		
 		if(!"delete".equals(typeStatement)) {
+			crs = Optional.of(args[3]);
 			physicalName = Optional.of(args[4]);
 		} else {
+			crs = Optional.empty();
 			physicalName = Optional.empty();
 		}
 		
