@@ -2,3 +2,7 @@ node_modules
 /bin/
 .project
 /.build/
+
+# IntelliJ
+.idea
+*.iml
