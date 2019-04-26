@@ -32,6 +32,7 @@ public class Inserter {
 	
 	private final String client;
 	private final String typeStatement;
+	private final String crs;
 	private final Optional<String> physicalName;
 	
 	private final String datasetUuid;
@@ -42,10 +43,11 @@ public class Inserter {
 	private String datasetDate;
 	private String metadataDate;
 	
-	public Inserter(String client, String geodropinId, String typeStatement, Optional<String> physicalName) {
+	public Inserter(String client, String geodropinId, String typeStatement, String crs, Optional<String> physicalName) {
 		this.client = client;
 		this.geodropinId = geodropinId;
 		this.typeStatement = typeStatement;
+		this.crs = crs;
 		this.physicalName = physicalName;
 		
 		if("insert".equals(this.typeStatement)) {
@@ -67,16 +69,17 @@ public class Inserter {
 		
 		String client = args[1];
 		String geodropinId = args[2];
+		String crs = args[3];
 		
 		Optional<String> physicalName;
 		
 		if(!"delete".equals(typeStatement)) {
-			physicalName = Optional.of(args[3]);
+			physicalName = Optional.of(args[4]);
 		} else {
 			physicalName = Optional.empty();
 		}
 		
-		Inserter t = new Inserter(client, geodropinId, typeStatement, physicalName);
+		Inserter t = new Inserter(client, geodropinId, typeStatement, crs, physicalName);
 		
 		if(!"delete".equals(typeStatement)) {
 			t.fetchValuesFromJson();
@@ -97,12 +100,14 @@ public class Inserter {
 						.replaceAll("@dataset_uuid@", t.datasetUuid)
 						.replaceAll("@title@", t.title)
 						.replaceAll("@description@", t.description)
+						.replaceAll("@crs@", t.crs)
 						.replaceAll("@dataset_date@", t.datasetDate);
 			} else if("update".equals(t.typeStatement)) {
 				result = content
 					.replaceAll("@metadata_date@", t.metadataDate)
 					.replaceAll("@title@", t.title)
 					.replaceAll("@description@", t.description)
+					.replaceAll("@crs@", t.crs)
 					.replaceAll("@dataset_date@", t.datasetDate);
 			} else {
 				result = null;
