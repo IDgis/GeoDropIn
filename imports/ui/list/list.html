@@ -20,8 +20,10 @@
 					<th class="col-xs-1"><span>Actie</span></th>
 					<th class="col-xs-1"><span>Naam</span></th>
 					<th class="col-xs-5"><span>Titel</span></th>
-					<th class="col-xs-2"><span>Datum</span></th>
-					<th class="col-xs-2"><span>Bijlage</span></th>
+					<th class="col-xs-1"><span>Datum</span></th>
+					<th class="col-xs-1"><span>Validatie status</span></th>
+					<th class="col-xs-1"><span>Upload status</span></th>
+					<th class="col-xs-1"><span>Bijlage</span></th>
 					<th class="col-xs-1"><span>Verwijderen</span></th>
 				</tr>
 			</thead>
@@ -31,8 +33,30 @@
 						<td class="col-xs-1"><a href="/form/edit/{{_id}}"><span class="glyphicon glyphicon-edit"></span></a></td>
 						<td class="col-cs-1">{{name}}</td>
 						<td class="col-xs-5">{{title}}</td>
-						<td class="col-xs-2">{{formatDate date}}</td>
-						<td class="col-xs-2">
+						<td class="col-xs-1">{{formatDate date}}</td>
+						<td class="col-xs-1">
+							{{#if equals validationStatus 'SUCCESS'}}
+								<span class="glyphicon glyphicon-ok-circle" style="color:green" title="{{validationMessage}}"></span>
+							{{else if equals validationStatus 'VALIDATING'}}
+								<span class="glyphicon glyphicon-refresh" style="color:royalblue" title="{{validationMessage}}"></span>
+							{{else if equals validationStatus 'ERROR'}}
+								<span class="glyphicon glyphicon-remove-circle" style="color:red" title="{{validationMessage}}"></span>
+							{{else}}
+								<span class="glyphicon glyphicon-alert" style="color:orange" title="Onbekende status, sla opnieuw op om de status te bepalen"></span>
+							{{/if}}
+						</td>
+						<td class="col-xs-1">
+							{{#if equals uploadStatus 'SUCCESS'}}
+								<span class="glyphicon glyphicon-ok-circle" style="color:green" title="{{uploadMessage}}"></span>
+							{{else if equals uploadStatus 'UPLOADING'}}
+								<span class="glyphicon glyphicon-cloud-upload" style="color:royalblue" title="{{uploadMessage}}"></span>
+							{{else if equals uploadStatus 'ERROR'}}
+								<span class="glyphicon glyphicon-remove-circle" style="color:red" title="{{uploadMessage}}"></span>
+							{{else}}
+								<span class="glyphicon glyphicon-alert" style="color:orange" title="Onbekende status, sla opnieuw op om de status te bepalen"></span>
+							{{/if}}
+						</td>
+						<td class="col-xs-1">
 							{{#each showAttachments _id}}
 								{{#each attachmentIds}}
 									<a href="/files/{{.}}"><span class="glyphicon glyphicon-eye-open"></span></a>

@@ -3,6 +3,51 @@ import { Meteor } from 'meteor/meteor';
 import { Attachment } from '/imports/api/collections/attachment.js';
 
 Meteor.methods({
+
+	runValidation: function(geodropinId, attachmentId, typeAction) {
+		var Future = Npm.require("fibers/future");
+		var exec = Npm.require("child_process").exec;
+
+		var attRecord = Attachment.findOne({_id: attachmentId});
+		if (attRecord) {
+			var zipFile = attRecord.copies.Attachment.key;
+			var zipName = zipFile.substr(0, zipFile.indexOf('.zip'));
+
+			if (typeof zipName !== 'undefined' && zipName !== null &&
+					typeof geodropinId !== 'undefined' && geodropinId !== null) {
+				if (typeAction === 'insert' || typeAction === 'update' || typeAction === 'delete') {
+					this.unblock();
+					var future = new Future();
+					var command = "/usr/host/bin/docker run --rm " +
+							"-e \"GEODATA_ZIP_NAME=" + zipName + "\" " +
+							"-e \"TYPEACTION=" + typeAction + "\" " +
+							"--volumes-from \"gdi_gdi.web_1\" " +
+							"--network gdi-base " +
+							"gdi_ogr2ogr.oracle.metadata " +
+							"/opt/validate.sh";
+
+					exec(command, function(error, stdout, stderr) {
+						if (error) {
+							future.throw(new Meteor.Error(stderr.toString()));
+						} else {
+							future.return(stdout.toString());
+						}
+					});
+
+					return future.wait();
+				} else {
+					// TODO: invalid typeAction
+					console.log('INVALID TYPEACTION');
+				}
+			} else {
+				// TODO: unset variables
+				console.log('UNSET VARIABLES');
+			}
+		} else {
+			// TODO: No Attachment found
+			console.log('NO ATTACHMENT FOUND');
+		}
+	},
 	
 	runDockerImage: function (geodropinId, attachmentId, typeAction) {
 		var Future = Npm.require("fibers/future");

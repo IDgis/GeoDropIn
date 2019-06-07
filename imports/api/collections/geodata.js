@@ -62,6 +62,22 @@ export const GeodataSchema = new SimpleSchema({
   tableName: {
     type: String,
     optional: true
+  },
+  validationStatus: {
+    type: String,
+    optional: true
+  },
+  validationMessage: {
+    type: String,
+    optional: true
+  },
+  uploadStatus: {
+    type: String,
+    optional: true
+  },
+  uploadMessage: {
+    type: String,
+    optional: true
   }
 });
 

@@ -21,6 +21,9 @@ Template.list.helpers({
 	},
 	showAttachments: function(id){
 		return CouplingAttData.find({dataId: id});
+	},
+	equals: function(value1, value2) {
+		return value1 === value2;
 	}
 });
 
@@ -33,12 +36,13 @@ Template.list.events({
 		Geodata.remove({_id: geodataId});
 		var couplingObject = CouplingAttData.findOne({dataId: geodataId});
 		
-		Meteor.call('sendMail', geodataId, 'deleted');
+		//Meteor.call('sendMail', geodataId, 'deleted');
 		
 		if(couplingObject) {
 			var couplingId = couplingObject._id;
 			var attIds = couplingObject.attachmentIds;
-			Meteor.call('runDockerImage', geodataId, attIds[0], 'delete');
+			
+			//Meteor.call('runDockerImage', geodataId, attIds[0], 'delete');
 			
 			CouplingAttData.remove({_id: couplingId});
 			attIds.forEach(function(item) {
