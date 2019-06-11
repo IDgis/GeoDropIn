@@ -209,7 +209,7 @@ AutoForm.addHooks('geodataform', {
 
 async function validateUpload(geodropinId, attachmentId, typeAction) {
 	try {
-		const validation = await meteorUtils.asyncMeteorCall('runValidation', geodropinId, attachmentId, typeAction);
+		const validation = await meteorUtils.asyncMeteorCall('runValidation', geodropinId, attachmentId, null, typeAction);
 		Geodata.update({_id: geodropinId}, {
 			$set: {
 				validationStatus: 'SUCCESS',
@@ -224,7 +224,7 @@ async function validateUpload(geodropinId, attachmentId, typeAction) {
 		Geodata.update({_id: geodropinId}, {
 			$set: {
 				validationStatus: 'ERROR',
-				validationMessage: err.error,
+				validationMessage: err.error || err,
 				uploadStatus: 'ERROR',
 				uploadMessage: 'Fout bij valideren. Controleer de ZIP file en probeer het nogmaals.',
 			}
@@ -234,7 +234,7 @@ async function validateUpload(geodropinId, attachmentId, typeAction) {
 
 async function processUpload(geodropinId, attachmentId, typeAction) {
 	try {
-		const upload = await meteorUtils.asyncMeteorCall('runDockerImage', geodropinId, attachmentId, typeAction);
+		const upload = await meteorUtils.asyncMeteorCall('runDockerImage', geodropinId, attachmentId, null, typeAction);
 		Geodata.update({_id: geodropinId}, {
 			$set: {
 				uploadStatus: 'SUCCESS',
@@ -247,7 +247,7 @@ async function processUpload(geodropinId, attachmentId, typeAction) {
 		Geodata.update({_id: geodropinId}, {
 			$set: {
 				uploadStatus: 'ERROR',
-				uploadMessage: err.error,
+				uploadMessage: err.error || err,
 			}
 		});
 	}
