@@ -219,9 +219,7 @@ async function validateUpload(geodropinId, attachmentId, typeAction) {
 			}
 		});
 
-		let str = "";
-		//Meteor.call('runDockerImage', geodropinId, attachmentId, typeAction);
-		//Meteor.call('sendMail', geodropinId, typeAction);
+		processUpload(geodropinId, attachmentId, typeAction);
 	} catch (err) {
 		Geodata.update({_id: geodropinId}, {
 			$set: {
@@ -229,6 +227,27 @@ async function validateUpload(geodropinId, attachmentId, typeAction) {
 				validationMessage: err.error,
 				uploadStatus: 'ERROR',
 				uploadMessage: 'Fout bij valideren. Controleer de ZIP file en probeer het nogmaals.',
+			}
+		});
+	}
+}
+
+async function processUpload(geodropinId, attachmentId, typeAction) {
+	try {
+		const upload = await meteorUtils.asyncMeteorCall('runDockerImage', geodropinId, attachmentId, typeAction);
+		Geodata.update({_id: geodropinId}, {
+			$set: {
+				uploadStatus: 'SUCCESS',
+				uploadMessage: 'Verwerken geslaagd',
+			}
+		});
+
+		Meteor.call('sendMail', geodropinId, typeAction);
+	} catch (err) {
+		Geodata.update({_id: geodropinId}, {
+			$set: {
+				uploadStatus: 'ERROR',
+				uploadMessage: err.error,
 			}
 		});
 	}

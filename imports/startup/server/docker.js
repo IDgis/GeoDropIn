@@ -166,11 +166,9 @@ Meteor.methods({
     	        		"/opt/start.sh";
     	        
 				exec(command, function(error, stdout, stderr){
-    	        	if(error) {
-						console.log(error);
-						future.return(stderr.toString());
-    	        		//throw new Meteor.Error(500, command + " failed");
-    	        	} else {
+    	        	if (error) {
+						future.throw(new Meteor.Error(stderr.toString()));
+					} else {
 						future.return(stdout.toString());
 					}
     	        });
