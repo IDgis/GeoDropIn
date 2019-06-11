@@ -145,8 +145,8 @@ AutoForm.addHooks('geodataform', {
 					$set: {
 						validationStatus: 'VALIDATING',
 						validationMessage: 'Bezig met valideren',
-						uploadStatus: 'UPLOADING',
-						uploadMessage: 'Uploaden start nadat validaties geslaagd zijn'
+						uploadStatus: 'PROCESSING',
+						uploadMessage: 'Verwerken start nadat validaties geslaagd zijn'
 					}
 				});
 
@@ -168,8 +168,8 @@ AutoForm.addHooks('geodataform', {
 					$set: {
 						validationStatus: 'VALIDATING',
 						validationMessage: 'Bezig met valideren',
-						uploadStatus: 'UPLOADING',
-						uploadMessage: 'Uploaden start nadat de validaties geslaagd zijn'
+						uploadStatus: 'PROCESSING',
+						uploadMessage: 'Verwerken start nadat de validaties geslaagd zijn'
 					}
 				});
 
@@ -214,8 +214,8 @@ async function validateUpload(geodropinId, attachmentId, typeAction) {
 			$set: {
 				validationStatus: 'SUCCESS',
 				validationMessage: 'Validatie geslaagd',
-				uploadStatus: 'UPLOADING',
-				uploadMessage: 'Bezig met uploaden',
+				uploadStatus: 'PROCESSING',
+				uploadMessage: 'Bezig met verwerken',
 			}
 		});
 

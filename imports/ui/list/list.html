@@ -48,7 +48,7 @@
 						<td class="col-xs-1">
 							{{#if equals uploadStatus 'SUCCESS'}}
 								<span class="glyphicon glyphicon-ok-circle" style="color:green" title="{{uploadMessage}}"></span>
-							{{else if equals uploadStatus 'UPLOADING'}}
+							{{else if equals uploadStatus 'PROCESSING'}}
 								<span class="glyphicon glyphicon-cloud-upload" style="color:royalblue" title="{{uploadMessage}}"></span>
 							{{else if equals uploadStatus 'ERROR'}}
 								<span class="glyphicon glyphicon-remove-circle" style="color:red" title="{{uploadMessage}}"></span>
