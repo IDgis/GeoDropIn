@@ -4,7 +4,7 @@ import './form.css';
 import { Geodata, GeodataSchema } from '/imports/api/collections/geodata.js';
 import { Attachment } from '/imports/api/collections/attachment.js';
 import { CouplingAttData, CouplingAttDataSchema } from '/imports/api/collections/couplingAttData.js';
-import { meteorUtils } from '/lib/meteor-utils.js';
+import { utils } from '../../../lib/utils';
 
 Template.form.onRendered(function() {
 	Session.set('attachmentIds', []);
@@ -159,7 +159,7 @@ AutoForm.addHooks('geodataform', {
 
 				CouplingAttData.insert({dataId: dataId, attachmentIds: attachmentIds});
 
-				validateUpload(dataId, attachmentIds[0], 'insert');
+				utils.validateUpload(dataId, attachmentIds[0], 'insert');
 			}
 		},
 		update: function(error, result) {
@@ -192,7 +192,7 @@ AutoForm.addHooks('geodataform', {
 
 				CouplingAttData.update({_id: attCoupling._id}, {$set: {attachmentIds: attIds}});
 
-				validateUpload(this.docId, attIds[0], 'update');
+				utils.validateUpload(this.docId, attIds[0], 'update');
 			}
 		}
 	},
@@ -206,49 +206,3 @@ AutoForm.addHooks('geodataform', {
 	},
 
 });
-
-async function validateUpload(geodropinId, attachmentId, typeAction) {
-	try {
-		const validation = await meteorUtils.asyncMeteorCall('runValidation', geodropinId, attachmentId, null, typeAction);
-		Geodata.update({_id: geodropinId}, {
-			$set: {
-				validationStatus: 'SUCCESS',
-				validationMessage: 'Validatie geslaagd',
-				uploadStatus: 'PROCESSING',
-				uploadMessage: 'Bezig met verwerken',
-			}
-		});
-
-		processUpload(geodropinId, attachmentId, typeAction);
-	} catch (err) {
-		Geodata.update({_id: geodropinId}, {
-			$set: {
-				validationStatus: 'ERROR',
-				validationMessage: err.error || err,
-				uploadStatus: 'ERROR',
-				uploadMessage: 'Fout bij valideren. Controleer de ZIP file en probeer het nogmaals.',
-			}
-		});
-	}
-}
-
-async function processUpload(geodropinId, attachmentId, typeAction) {
-	try {
-		const upload = await meteorUtils.asyncMeteorCall('runDockerImage', geodropinId, attachmentId, null, typeAction);
-		Geodata.update({_id: geodropinId}, {
-			$set: {
-				uploadStatus: 'SUCCESS',
-				uploadMessage: 'Verwerken geslaagd',
-			}
-		});
-
-		Meteor.call('sendMail', geodropinId, typeAction);
-	} catch (err) {
-		Geodata.update({_id: geodropinId}, {
-			$set: {
-				uploadStatus: 'ERROR',
-				uploadMessage: err.error || err,
-			}
-		});
-	}
-}

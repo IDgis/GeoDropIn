@@ -7,6 +7,7 @@ import { Blaze } from 'meteor/blaze';
 import { Geodata, GeodataSchema } from '/imports/api/collections/geodata.js';
 import { Attachment } from '/imports/api/collections/attachment.js';
 import { CouplingAttData, CouplingAttDataSchema } from '/imports/api/collections/couplingAttData.js';
+import { utils } from '../../../lib/utils';
 
 Template.list.onRendered(function() {
 	if(Meteor.user()) {
@@ -41,7 +42,7 @@ Template.list.events({
 			var couplingId = couplingObject._id;
 			var attIds = couplingObject.attachmentIds;
 			
-			//Meteor.call('runDockerImage', geodataId, attIds[0], 'delete');
+			utils.processUpload(geodataId, attIds[0], 'delete');
 			
 			CouplingAttData.remove({_id: couplingId});
 			attIds.forEach(function(item) {
