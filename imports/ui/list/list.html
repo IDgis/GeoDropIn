@@ -13,6 +13,7 @@
 			<div class="col-xs-4" id="index-layout-layer-radius-bottom-right"></div>
 		</div>
 	</div>
+	<div id="status-message"></div>
 	<div id="list-metadata" class="col-xs-offset-1 col-xs-10">
 		<table class="table table-hover">
 			<thead>
@@ -34,26 +35,26 @@
 						<td class="col-cs-1">{{name}}</td>
 						<td class="col-xs-5">{{title}}</td>
 						<td class="col-xs-1">{{formatDate date}}</td>
-						<td class="col-xs-1">
+						<td class="col-xs-1 js-validation-status" data-id={{_id}}>
 							{{#if equals validationStatus 'SUCCESS'}}
-								<span class="glyphicon glyphicon-ok-circle" style="color:green" title="{{validationMessage}}"></span>
+								<span class="glyphicon glyphicon-ok-circle" style="color:green" title="Klik voor meer informatie" data-toggle="modal" data-target="#message-popup{{_id}}-validation"></span>
 							{{else if equals validationStatus 'VALIDATING'}}
-								<span class="glyphicon glyphicon-refresh" style="color:royalblue" title="{{validationMessage}}"></span>
+								<span class="glyphicon glyphicon-refresh" style="color:royalblue" title="Klik voor meer informatie" data-toggle="modal" data-target="#message-popup{{_id}}-validation"></span>
 							{{else if equals validationStatus 'ERROR'}}
-								<span class="glyphicon glyphicon-remove-circle" style="color:red" title="{{validationMessage}}"></span>
+								<span class="glyphicon glyphicon-remove-circle" style="color:red" title="Klik voor meer informatie" data-toggle="modal" data-target="#message-popup{{_id}}-validation"></span>
 							{{else}}
-								<span class="glyphicon glyphicon-alert" style="color:orange" title="Onbekende status, sla opnieuw op om de status te bepalen"></span>
+								<span class="glyphicon glyphicon-alert" style="color:orange" title="Klik voor meer informatie" data-toggle="modal" data-target="#message-popup{{_id}}-validation"></span>
 							{{/if}}
 						</td>
-						<td class="col-xs-1">
+						<td class="col-xs-1 js-process-status" data-id={{_id}}>
 							{{#if equals uploadStatus 'SUCCESS'}}
-								<span class="glyphicon glyphicon-ok-circle" style="color:green" title="{{uploadMessage}}"></span>
+								<span class="glyphicon glyphicon-ok-circle" style="color:green" title="Klik voor meer informatie" data-toggle="modal" data-target="#message-popup{{_id}}-status"></span>
 							{{else if equals uploadStatus 'PROCESSING'}}
-								<span class="glyphicon glyphicon-cloud-upload" style="color:royalblue" title="{{uploadMessage}}"></span>
+								<span class="glyphicon glyphicon-cloud-upload" style="color:royalblue" title="Klik voor meer informatie" data-toggle="modal" data-target="#message-popup{{_id}}-status"></span>
 							{{else if equals uploadStatus 'ERROR'}}
-								<span class="glyphicon glyphicon-remove-circle" style="color:red" title="{{uploadMessage}}"></span>
+								<span class="glyphicon glyphicon-remove-circle" style="color:red" title="Klik voor meer informatie" data-toggle="modal" data-target="#message-popup{{_id}}-status"></span>
 							{{else}}
-								<span class="glyphicon glyphicon-alert" style="color:orange" title="Onbekende status, sla opnieuw op om de status te bepalen"></span>
+								<span class="glyphicon glyphicon-alert" style="color:orange" title="Klik voor meer informatie" data-toggle="modal" data-target="#message-popup{{_id}}-status"></span>
 							{{/if}}
 						</td>
 						<td class="col-xs-1">

@@ -2,6 +2,7 @@ import './list.html';
 import './list.css';
 
 import { Meteor } from 'meteor/meteor';
+import { Blaze } from 'meteor/blaze';
 
 import { Geodata, GeodataSchema } from '/imports/api/collections/geodata.js';
 import { Attachment } from '/imports/api/collections/attachment.js';
@@ -36,8 +37,6 @@ Template.list.events({
 		Geodata.remove({_id: geodataId});
 		var couplingObject = CouplingAttData.findOne({dataId: geodataId});
 		
-		//Meteor.call('sendMail', geodataId, 'deleted');
-		
 		if(couplingObject) {
 			var couplingId = couplingObject._id;
 			var attIds = couplingObject.attachmentIds;
@@ -49,5 +48,33 @@ Template.list.events({
 				Attachment.remove({_id: item});
 			});
 		}
+	},
+	'click .js-validation-status': function(e) {
+		var geodataId = e.target.parentElement.dataset.id;
+		var geodata = Geodata.findOne({ _id: geodataId });
+
+		var id = `${geodata._id}-validation`;
+		var status = geodata.validationStatus || 'ONBEKEND';
+		var message = geodata.validationMessage || 'Onbekende status, sla opnieuw op om de status te bepalen'
+
+		Blaze.renderWithData(
+			Template.popup,
+			{ id, message, status },
+			document.getElementById('status-message')
+		);
+	},
+	'click .js-process-status': function(e) {
+		var geodataId = e.target.parentElement.dataset.id;
+		var geodata = Geodata.findOne({ _id: geodataId });
+
+		var id = `${geodata._id}-status`;
+		var status = geodata.uploadStatus || 'ONBEKEND';
+		var message = geodata.uploadMessage || 'Onbekende status, sla opnieuw op om de status te bepalen';
+
+		Blaze.renderWithData(
+			Template.popup,
+			{ id, message, status },
+			document.getElementById('status-message')
+		);
 	}
 });
