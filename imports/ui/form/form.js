@@ -4,6 +4,7 @@ import './form.css';
 import { Geodata, GeodataSchema } from '/imports/api/collections/geodata.js';
 import { Attachment } from '/imports/api/collections/attachment.js';
 import { CouplingAttData, CouplingAttDataSchema } from '/imports/api/collections/couplingAttData.js';
+import { utils } from '../../../lib/utils';
 
 Template.form.onRendered(function() {
 	Session.set('attachmentIds', []);
@@ -129,53 +130,79 @@ function findIndex(obj) {
 
 AutoForm.addHooks('geodataform', {
 	before: {
+		insert: function(doc) {
+			return doc;
+		},
 		update: function(doc) {
-			Meteor.call('sendMail', this.docId, 'updated');
-			
 			return doc;
 		}
 	},
 	after: {
 		insert: function(error, result) {
-			if(result) {
+			if (result) {
 				var dataId = result;
+				Geodata.update({_id: dataId}, {
+					$set: {
+						validationStatus: 'VALIDATING',
+						validationMessage: 'Bezig met valideren',
+						uploadStatus: 'PROCESSING',
+						uploadMessage: 'Verwerken start nadat validaties geslaagd zijn'
+					}
+				});
+
 				var attachmentItems = Session.get('attachmentIds');
 				var attachmentIds = [];
-				
+
 				attachmentItems.forEach(function(item) {
 					attachmentIds.push(item.fileId);
 				});
-				
+
 				CouplingAttData.insert({dataId: dataId, attachmentIds: attachmentIds});
-				Meteor.call('runDockerImage', dataId, attachmentIds[0], 'insert');
-				Meteor.call('sendMail', dataId, 'inserted');
+
+				utils.validateUpload(dataId, attachmentIds[0], 'insert');
 			}
 		},
 		update: function(error, result) {
-			if(result) {
+			if (result) {
+				Geodata.update({_id: this.docId}, {
+					$set: {
+						validationStatus: 'VALIDATING',
+						validationMessage: 'Bezig met valideren',
+						uploadStatus: 'PROCESSING',
+						uploadMessage: 'Verwerken start nadat de validaties geslaagd zijn'
+					}
+				});
+
 				var attRemove = Session.get('attachmentRemoveIds');
 				var attCoupling = CouplingAttData.findOne({dataId: this.docId});
 				var attIds = attCoupling.attachmentIds;
-				
+
 				attRemove.forEach(function(item) {
 					var attIndex = attIds.indexOf(item);
-					if(attIndex > -1) {
+					if (attIndex > -1) {
 						attIds.splice(attIndex, 1);
 						Attachment.remove({_id: item});
 					}
 				});
-				
+
 				var attachmentItems = Session.get('attachmentIds');
 				attachmentItems.forEach(function(item) {
 					attIds.push(item.fileId);
 				});
-				
+
 				CouplingAttData.update({_id: attCoupling._id}, {$set: {attachmentIds: attIds}});
-				Meteor.call('runDockerImage', this.docId, attIds[0], 'update');
+
+				utils.validateUpload(this.docId, attIds[0], 'update');
 			}
 		}
 	},
-	onSuccess: function() {
+	onSubmit: function(submitType, result) {
+	},
+	onSuccess: function(submitType, result) {
 		Router.go('list');
-	}
+	},
+	onError: function(submitTType, error) {
+		console.log(error);
+	},
+
 });

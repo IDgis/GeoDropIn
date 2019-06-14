@@ -3,3 +3,9 @@
 /build
 /.classpath
 /.settings
+
+# IntelliJ
+.idea
+*.iml
+*.ipr
+*.iws
