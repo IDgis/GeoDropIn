@@ -391,7 +391,9 @@ function processUpload(username, geodropinId, zipName, typeAction) {
 			}
 		});
 
-        Meteor.call('sendMailFromServer', username, geodropinId, typeAction);
+        if (process.env.GEODROPIN_HOST && process.env.GEODROPIN_HOST.indexOf('local') !== -1) {
+            Meteor.call('sendMailFromServer', username, geodropinId, typeAction);
+        }
 	} catch (err) {
 		Geodata.update({_id: geodropinId}, {
 			$set: {
