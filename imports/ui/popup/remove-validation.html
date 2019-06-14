@@ -1,0 +1,40 @@
+<template name="removeValidation">
+    <div class="modal fade" id="removal-popup{{ id }}" tabindex="-1" role="dialog" aria-labelledby="removalPopupLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Annuleren">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h3 class="modal-title" id="removalPopupLabel">Waarschuwing</h3>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <strong>Weet u zeker dat u de brondataset <em>{{ name }}</em> wilt verwijderen?</strong>
+                    </p>
+                    <p>
+                        Deze actie zorgt ervoor dat de brondata definitief wordt verwijderd. <br />Eventuele services die op basis van deze 
+                        brondata gemaakt zijn blijven wel in stand, maar kunnen niet meer bijgewerkt worden.
+                    </p>
+                    <div id="removalInformation" class="collapse">
+                        <p>
+                            In GeoPublisher zal in het overzicht van de brongegevens een melding worden weergegeven dat de brondataset 
+                            verwijderd is en het verversen van de brongegevens zal voor deze brondataset dan ook niet meer werken. Een 
+                            nieuwe upload zal leiden tot een nieuw brondataset. 
+                        </p>
+                        <p>
+                            Om correcties aan te brengen in het huidige bestand kunt u in het menu ervoor kiezen om deze brondataset te 
+                            muteren en hier een ander ZIP bestand met brondataset te uploaden.
+                        </p>
+                    </div>
+                    <br />
+                    <button type="button" class="btn btn-default removal-info" data-toggle="collapse" data-target="#removalInformation">Meer informatie</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger js-remove-data-popup" data-dismiss="modal">Verwijderen</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuleren</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
