@@ -4,6 +4,7 @@ import { Router } from 'meteor/iron:router';
 import '/imports/ui/main.js';
 import '/imports/ui/list/list.js';
 import '/imports/ui/form/form.js';
+import '/imports/ui/popup/popup.js';
 import '/imports/ui/unauthorized/unauthorized.js';
 import '/imports/ui/notfound/notfound.js';
 
