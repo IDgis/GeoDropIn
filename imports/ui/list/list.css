@@ -4,6 +4,8 @@
 #app-buttons-content {background-color:#ffffff;padding-top:20px;height:100px;}
 #list-metadata {padding-top:15px;margin-bottom:20px;background-color:#ffffff;min-height:500px;}
 .js-remove-data:hover{cursor:pointer;}
+.js-process-status:hover .glyphicon{cursor:pointer;}
+.js-validation-status:hover .glyphicon{cursor:pointer;}
 
 #index-layout-layer-radius-bottom-left {height:100px;background-color:#C4C8B7;
 	border:1px solid #C4C8B7;border-radius: 0 0 30px 0;background-clip:padding-box;}

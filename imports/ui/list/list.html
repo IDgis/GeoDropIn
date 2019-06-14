@@ -13,7 +13,7 @@
 			<div class="col-xs-4" id="index-layout-layer-radius-bottom-right"></div>
 		</div>
 	</div>
-	<div id="status-message"></div>
+	<div id="popup-location"></div>
 	<div id="list-metadata" class="col-xs-offset-1 col-xs-10">
 		<table class="table table-hover">
 			<thead>
@@ -22,10 +22,10 @@
 					<th class="col-xs-1"><span>Naam</span></th>
 					<th class="col-xs-5"><span>Titel</span></th>
 					<th class="col-xs-1"><span>Datum</span></th>
-					<th class="col-xs-1"><span>Validatie status</span></th>
-					<th class="col-xs-1"><span>Verwerking status</span></th>
-					<th class="col-xs-1"><span>Bijlage</span></th>
-					<th class="col-xs-1"><span>Verwijderen</span></th>
+					<th class="col-xs-1 text-center"><span>Validatie</span></th>
+					<th class="col-xs-1 text-center"><span>Verwerking</span></th>
+					<th class="col-xs-1 text-center"><span>Bijlage</span></th>
+					<th class="col-xs-1 text-center"><span>Verwijderen</span></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -35,7 +35,7 @@
 						<td class="col-cs-1">{{name}}</td>
 						<td class="col-xs-5">{{title}}</td>
 						<td class="col-xs-1">{{formatDate date}}</td>
-						<td class="col-xs-1 js-validation-status" data-id={{_id}}>
+						<td class="col-xs-1 text-center js-validation-status" data-id={{_id}}>
 							{{#if equals validationStatus 'SUCCESS'}}
 								<span class="glyphicon glyphicon-ok-circle" style="color:green" title="Klik voor meer informatie" data-toggle="modal" data-target="#message-popup{{_id}}-validation"></span>
 							{{else if equals validationStatus 'VALIDATING'}}
@@ -46,7 +46,7 @@
 								<span class="glyphicon glyphicon-alert" style="color:orange" title="Klik voor meer informatie" data-toggle="modal" data-target="#message-popup{{_id}}-validation"></span>
 							{{/if}}
 						</td>
-						<td class="col-xs-1 js-process-status" data-id={{_id}}>
+						<td class="col-xs-1 text-center js-process-status" data-id={{_id}}>
 							{{#if equals uploadStatus 'SUCCESS'}}
 								<span class="glyphicon glyphicon-ok-circle" style="color:green" title="Klik voor meer informatie" data-toggle="modal" data-target="#message-popup{{_id}}-status"></span>
 							{{else if equals uploadStatus 'PROCESSING'}}
@@ -57,14 +57,14 @@
 								<span class="glyphicon glyphicon-alert" style="color:orange" title="Klik voor meer informatie" data-toggle="modal" data-target="#message-popup{{_id}}-status"></span>
 							{{/if}}
 						</td>
-						<td class="col-xs-1">
+						<td class="col-xs-1 text-center">
 							{{#each showAttachments _id}}
 								{{#each attachmentIds}}
 									<a href="/files/{{.}}"><span class="glyphicon glyphicon-eye-open"></span></a>
 								{{/each}}
 							{{/each}}
 						</td>
-						<td class="col-xs-1"><span id={{_id}} class="glyphicon glyphicon-remove js-remove-data"></span></td>
+						<td class="col-xs-1 text-center"><span id={{_id}} class="glyphicon glyphicon-remove js-remove-data" data-toggle="modal" data-target="#removal-popup{{_id}}"></span></td>
 					</tr>
 				{{/each}}
 			</tbody>

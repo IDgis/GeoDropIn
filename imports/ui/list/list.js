@@ -4,9 +4,9 @@ import './list.css';
 import { Meteor } from 'meteor/meteor';
 import { Blaze } from 'meteor/blaze';
 
-import { Geodata, GeodataSchema } from '/imports/api/collections/geodata.js';
-import { Attachment } from '/imports/api/collections/attachment.js';
-import { CouplingAttData, CouplingAttDataSchema } from '/imports/api/collections/couplingAttData.js';
+import { Geodata, GeodataSchema } from '../../api/collections/geodata.js';
+import { Attachment } from '../../api/collections/attachment.js';
+import { CouplingAttData, CouplingAttDataSchema } from '../../api/collections/couplingAttData.js';
 import { utils } from '../../../lib/utils';
 
 Template.list.onRendered(function() {
@@ -34,21 +34,14 @@ Template.list.events({
 		Router.go('formadd');
 	},
 	'click .js-remove-data': function(e) {
-		var geodataId = e.target.id;
-		Geodata.remove({_id: geodataId});
-		var couplingObject = CouplingAttData.findOne({dataId: geodataId});
-		
-		if(couplingObject) {
-			var couplingId = couplingObject._id;
-			var attIds = couplingObject.attachmentIds;
-			
-			utils.processUpload(geodataId, attIds[0], 'delete');
-			
-			CouplingAttData.remove({_id: couplingId});
-			attIds.forEach(function(item) {
-				Attachment.remove({_id: item});
-			});
-		}
+		const geodataId = e.target.id;
+		const geodata = Geodata.findOne({ _id: geodataId });
+
+		Blaze.renderWithData(
+			Template.removeValidation,
+			{ id: geodata._id, name: geodata.name },
+			document.getElementById('popup-location')
+		)
 	},
 	'click .js-validation-status': function(e) {
 		var geodataId = e.target.parentElement.dataset.id;
@@ -61,7 +54,7 @@ Template.list.events({
 		Blaze.renderWithData(
 			Template.popup,
 			{ id, message, status },
-			document.getElementById('status-message')
+			document.getElementById('popup-location')
 		);
 	},
 	'click .js-process-status': function(e) {
@@ -75,7 +68,7 @@ Template.list.events({
 		Blaze.renderWithData(
 			Template.popup,
 			{ id, message, status },
-			document.getElementById('status-message')
+			document.getElementById('popup-location')
 		);
 	}
 });
