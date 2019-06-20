@@ -32,9 +32,9 @@
 				{{#each showGeodata}}
 					<tr>
 						<td class="col-xs-1"><a href="/form/edit/{{_id}}"><span class="glyphicon glyphicon-edit"></span></a></td>
-						<td class="col-cs-1">{{name}}</td>
-						<td class="col-xs-5">{{title}}</td>
-						<td class="col-xs-1">{{formatDate date}}</td>
+						<td class="col-xs-1">{{name}}</td>
+						<td class="col-xs-4">{{title}}</td>
+						<td class="col-xs-2">{{formatDate date}}</td>
 						<td class="col-xs-1 text-center js-validation-status" data-id={{_id}}>
 							{{#if equals validationStatus 'SUCCESS'}}
 								<span class="glyphicon glyphicon-ok-circle" style="color:green" title="Klik voor meer informatie" data-toggle="modal" data-target="#message-popup{{_id}}-validation"></span>
