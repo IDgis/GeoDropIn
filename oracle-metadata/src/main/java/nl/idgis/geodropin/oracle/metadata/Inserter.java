@@ -110,78 +110,93 @@ public class Inserter {
 		}
 		
 		Class.forName("oracle.jdbc.driver.OracleDriver");
-		Connection connection = DriverManager
-				.getConnection("jdbc:oracle:thin:@" + 
-						System.getenv("DB_IP") + ":" + 
-						System.getenv("DB_PORT") + ":" + 
-						System.getenv("DB_SID"), 
-						System.getenv("DB_USER"), 
-						System.getenv("DB_PASSWORD"));
 		
 		t.physicalName.ifPresent(name -> {
-			try {
-				if("insert".equals(t.typeStatement)) {
-					String sql = "insert into GDB_ITEMS_VW values (?, ?, ?, ?, ?)";
-					PreparedStatement stmt = connection.prepareStatement(sql);
+			if("insert".equals(t.typeStatement)) {
+				String sql = "insert into GDB_ITEMS_VW values (?, ?, ?, ?, ?)";
+				try (Connection conn = t.getConnection();
+						PreparedStatement stmt = conn.prepareStatement(sql)) {
 					stmt.setString(1, "{" + UUID.randomUUID().toString() + "}");
 					stmt.setString(2, t.geodropinId);
 					stmt.setString(3, ITEM_TYPE);
 					stmt.setString(4, name);
 					stmt.setString(5, result);
 					stmt.execute();
-					stmt.close();
-				} else if("update".equals(t.typeStatement)) {
-					t.clearTableAndGeom(t.geodropinId, connection);
-					
-					String sqlUpdateMetadata = "update GDB_ITEMS_VW set PHYSICALNAME = ?, DOCUMENTATION = ? where GEODROPINID = ?";
-					PreparedStatement stmtUpdateMetadata = connection.prepareStatement(sqlUpdateMetadata);
-					stmtUpdateMetadata.setString(1, name);
-					stmtUpdateMetadata.setString(2, result);
-					stmtUpdateMetadata.setString(3, t.geodropinId);
-					stmtUpdateMetadata.execute();
-					stmtUpdateMetadata.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
 				}
-			} catch(Exception e) {
-				e.printStackTrace();
+			} else if("update".equals(t.typeStatement)) {
+				t.clearTableAndGeom(t.geodropinId);
+
+				String sqlUpdateMetadata = "update GDB_ITEMS_VW set PHYSICALNAME = ?, DOCUMENTATION = ? where GEODROPINID = ?";
+				try (Connection conn = t.getConnection();
+						PreparedStatement stmt = conn.prepareStatement(sqlUpdateMetadata)) {
+					stmt.setString(1, name);
+					stmt.setString(2, result);
+					stmt.setString(3, t.geodropinId);
+					stmt.execute();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
 		});
-		
-		if("delete".equals(t.typeStatement)) {
-			t.clearTableAndGeom(t.geodropinId, connection);
-			
+
+		if ("delete".equals(t.typeStatement)) {
+			t.clearTableAndGeom(t.geodropinId);
+
 			String sqlRemoveMetadata = "delete from GDB_ITEMS_VW where GEODROPINID = ?";
-			PreparedStatement stmtRemoveMetadata = connection.prepareStatement(sqlRemoveMetadata);
-			stmtRemoveMetadata.setString(1, t.geodropinId);
-			stmtRemoveMetadata.execute();
-			stmtRemoveMetadata.close();
+			try (Connection conn = t.getConnection();
+					PreparedStatement stmt = conn.prepareStatement(sqlRemoveMetadata)) {
+				stmt.setString(1, t.geodropinId);
+				stmt.execute();
+			}
 		}
-		
-		connection.close();
 	}
-	
-	public void clearTableAndGeom(String geodropinId, Connection c) throws SQLException {
+
+	private void clearTableAndGeom(String geodropinId) {
 		String sqlFetchPhysicalName = "select PHYSICALNAME from GDB_ITEMS_VW where GEODROPINID = ?";
-		PreparedStatement stmtFetchPhysicalName = c.prepareStatement(sqlFetchPhysicalName);
-		stmtFetchPhysicalName.setString(1, geodropinId);
-		ResultSet rs = stmtFetchPhysicalName.executeQuery();
-		rs.next();
-		String physicalNameWithScheme = rs.getString(1);
-		
-		StringBuilder sb = new StringBuilder(physicalNameWithScheme);
-		String physicalNameWithoutScheme = sb.substring(physicalNameWithScheme.indexOf(".") + 1);
-		
-		String sqlDropTable = "drop table " + physicalNameWithoutScheme;
-		PreparedStatement stmtDropTable = c.prepareStatement(sqlDropTable);
-		stmtDropTable.execute();
-		stmtDropTable.close();
-		
 		String sqlRemoveGeom = "delete from USER_SDO_GEOM_METADATA where TABLE_NAME = ?";
-		PreparedStatement stmtRemoveGeom = c.prepareStatement(sqlRemoveGeom);
-		stmtRemoveGeom.setString(1, physicalNameWithoutScheme);
-		stmtRemoveGeom.execute();
-		stmtRemoveGeom.close();
-		
-		stmtFetchPhysicalName.close();
+		String sqlDropTable;
+		String physicalNameWithoutScheme;
+
+		try (Connection connection = getConnection()) {
+			// Get the PHYSICALNAME to create the DROP TABLE query
+			try (PreparedStatement stmt = connection.prepareStatement(sqlFetchPhysicalName)) {
+				stmt.setString(1, geodropinId);
+				try (ResultSet rs = stmt.executeQuery()) {
+					rs.next();
+					String physicalNameWithScheme = rs.getString(1);
+
+					StringBuilder sb = new StringBuilder(physicalNameWithScheme);
+					physicalNameWithoutScheme = sb.substring(physicalNameWithScheme.indexOf('.') + 1);
+
+					sqlDropTable = "drop table " + physicalNameWithoutScheme;
+				}
+			}
+
+			// Execute the query to drop the table
+			try (PreparedStatement stmt = connection.prepareStatement(sqlDropTable)) {
+				stmt.execute();
+			}
+
+			// Execute the query to delete the geom metadata
+			try (PreparedStatement stmt = connection.prepareStatement(sqlRemoveGeom)) {
+				stmt.setString(1, physicalNameWithoutScheme);
+				stmt.execute();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private Connection getConnection() throws SQLException {
+		return DriverManager.getConnection("jdbc:oracle:thin:@" +
+			System.getenv("DB_IP") + ":" +
+			System.getenv("DB_PORT") + ":" +
+			System.getenv("DB_SID"),
+			System.getenv("DB_USER"),
+			System.getenv("DB_PASSWORD")
+		);
 	}
 	
 	public void fetchValuesFromJson() throws Exception {
