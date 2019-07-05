@@ -23,9 +23,11 @@ Meteor.methods({
 				this.unblock();
 				var future = new Future();
 				var command = "/usr/host/bin/docker run --rm " +
+				        "-e \"LD_LIBRARY_PATH=/opt/instantclient_12_1\" " +
 						"-e \"GEODATA_ZIP_NAME=" + zipName + "\" " +
 						"-e \"TYPEACTION=" + typeAction + "\" " +
 						"--volumes-from \"gdi_gdi.web_1\" " +
+						"-v \"ogr2ogr_tnsadmin:/opt/instantclient_12_1\" " +
 						"--network gdi-base " +
 						"gdi_ogr2ogr.oracle.metadata " +
 						"/opt/validate.sh";
