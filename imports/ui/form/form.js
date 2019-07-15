@@ -85,11 +85,24 @@ Template.form.events({
 		}
 		
 		Attachment.insert(e.target.files[0], function (err, fileObj) {
-			var att = {'index': index, 'fileId': fileObj._id};
-			attachmentIds.push(att);
-			
-			Session.set('attachmentIds', attachmentIds);
-			$(e.target).attr('data-id', fileObj._id);
+			if (err) {
+				console.log('Error inserting Attachment in collection!');
+				console.log(err);
+			} else {
+				$('#js-form-submit').prop('disabled', true);
+				document.body.style.cursor = 'wait';
+
+				fileObj.once('uploaded', function() {
+					$('#js-form-submit').prop('disabled', false);
+					document.body.style.cursor = 'default';
+				});
+
+				var att = {'index': index, 'fileId': fileObj._id};
+				attachmentIds.push(att);
+				
+				Session.set('attachmentIds', attachmentIds);
+				$(e.target).attr('data-id', fileObj._id);
+			}
 		});
 	},
 	'click .js-remove-attachment': function(e) {
