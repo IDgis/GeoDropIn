@@ -17,7 +17,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,7 +31,7 @@ public class Inserter {
 	
 	private final String client;
 	private final String typeStatement;
-	private final Optional<String> physicalName;
+	private final String physicalName;
 	
 	private final String datasetUuid;
 	private final String metadataUuid;
@@ -42,7 +41,7 @@ public class Inserter {
 	private String datasetDate;
 	private String metadataDate;
 	
-	public Inserter(String client, String geodropinId, String typeStatement, Optional<String> physicalName) {
+	public Inserter(String client, String geodropinId, String typeStatement, String physicalName) {
 		this.client = client;
 		this.geodropinId = geodropinId;
 		this.typeStatement = typeStatement;
@@ -67,43 +66,36 @@ public class Inserter {
 		
 		String client = args[1];
 		String geodropinId = args[2];
+		String physicalName = args[3];
 		
-		Optional<String> physicalName;
-		
-		if(!"delete".equals(typeStatement)) {
-			physicalName = Optional.of(args[3]);
-		} else {
-			physicalName = Optional.empty();
-		}
-		
-		Inserter t = new Inserter(client, geodropinId, typeStatement, physicalName);
+		Inserter inserter = new Inserter(client, geodropinId, typeStatement, physicalName);
 		
 		if(!"delete".equals(typeStatement)) {
-			t.fetchValuesFromJson();
+			inserter.fetchValuesFromJson();
 		}
 
-		InputStream inputStream = new URL(System.getenv("GEODROPIN_HOST") + "/resources/templates/dataset_template_" + t.client + ".xml")
+		InputStream inputStream = new URL(System.getenv("GEODROPIN_HOST") + "/resources/templates/dataset_template_" + inserter.client + ".xml")
 				.openStream();
 		
 		final String result;
 		
-		try (BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream))) {
+		try(BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream))) {
 			String content = buffer.lines().collect(Collectors.joining("\n"));
 			
-			if("insert".equals(t.typeStatement)) {
+			if("insert".equals(inserter.typeStatement)) {
 				result = content
-						.replaceAll("@metadata_uuid@", t.metadataUuid)
-						.replaceAll("@metadata_date@", t.metadataDate)
-						.replaceAll("@dataset_uuid@", t.datasetUuid)
-						.replaceAll("@title@", t.title)
-						.replaceAll("@description@", t.description)
-						.replaceAll("@dataset_date@", t.datasetDate);
-			} else if("update".equals(t.typeStatement)) {
+						.replaceAll("@metadata_uuid@", inserter.metadataUuid)
+						.replaceAll("@metadata_date@", inserter.metadataDate)
+						.replaceAll("@dataset_uuid@", inserter.datasetUuid)
+						.replaceAll("@title@", inserter.title)
+						.replaceAll("@description@", inserter.description)
+						.replaceAll("@dataset_date@", inserter.datasetDate);
+			} else if("update".equals(inserter.typeStatement)) {
 				result = content
-					.replaceAll("@metadata_date@", t.metadataDate)
-					.replaceAll("@title@", t.title)
-					.replaceAll("@description@", t.description)
-					.replaceAll("@dataset_date@", t.datasetDate);
+					.replaceAll("@metadata_date@", inserter.metadataDate)
+					.replaceAll("@title@", inserter.title)
+					.replaceAll("@description@", inserter.description)
+					.replaceAll("@dataset_date@", inserter.datasetDate);
 			} else {
 				result = null;
 			}
@@ -111,99 +103,84 @@ public class Inserter {
 		
 		Class.forName("oracle.jdbc.driver.OracleDriver");
 		
-		t.physicalName.ifPresent(name -> {
-			if("insert".equals(t.typeStatement)) {
+		if("insert".equals(inserter.typeStatement) || "update".equals(inserter.typeStatement)) {
+			if("update".equals(inserter.typeStatement)) {
+				inserter.clearTableAndGeom(inserter);
+			}
+			
+			if(!inserter.gdbItemsVwRecordExists(inserter.geodropinId)) {
 				String sql = "insert into GDB_ITEMS_VW values (?, ?, ?, ?, ?)";
-				try (Connection conn = t.getConnection();
+				try(Connection conn = Inserter.getConnection();
 						PreparedStatement stmt = conn.prepareStatement(sql)) {
 					stmt.setString(1, "{" + UUID.randomUUID().toString() + "}");
-					stmt.setString(2, t.geodropinId);
+					stmt.setString(2, inserter.geodropinId);
 					stmt.setString(3, ITEM_TYPE);
-					stmt.setString(4, name);
+					stmt.setString(4, inserter.physicalName);
 					stmt.setString(5, result);
 					stmt.execute();
-				} catch (SQLException e) {
-					e.printStackTrace();
 				}
-			} else if("update".equals(t.typeStatement)) {
-				t.clearTableAndGeom(t.geodropinId);
-
+			} else {
 				String sqlUpdateMetadata = "update GDB_ITEMS_VW set PHYSICALNAME = ?, DOCUMENTATION = ? where GEODROPINID = ?";
-				try (Connection conn = t.getConnection();
+				try(Connection conn = Inserter.getConnection();
 						PreparedStatement stmt = conn.prepareStatement(sqlUpdateMetadata)) {
-					stmt.setString(1, name);
+					stmt.setString(1, inserter.physicalName);
 					stmt.setString(2, result);
-					stmt.setString(3, t.geodropinId);
+					stmt.setString(3, inserter.geodropinId);
 					stmt.execute();
-				} catch (SQLException e) {
-					e.printStackTrace();
 				}
 			}
-		});
+		}
 
-		if ("delete".equals(t.typeStatement)) {
-			t.clearTableAndGeom(t.geodropinId);
-
+		if("delete".equals(inserter.typeStatement)) {
+			inserter.clearTableAndGeom(inserter);
+			
 			String sqlRemoveMetadata = "delete from GDB_ITEMS_VW where GEODROPINID = ?";
-			try (Connection conn = t.getConnection();
+			try(Connection conn = Inserter.getConnection();
 					PreparedStatement stmt = conn.prepareStatement(sqlRemoveMetadata)) {
-				stmt.setString(1, t.geodropinId);
+				stmt.setString(1, inserter.geodropinId);
 				stmt.execute();
 			}
 		}
 	}
-
-	private void clearTableAndGeom(String geodropinId) {
-		String sqlFetchPhysicalName = "select PHYSICALNAME from GDB_ITEMS_VW where GEODROPINID = ?";
+	
+	private boolean gdbItemsVwRecordExists(String geodropinId) throws SQLException {
+		String sql = "select PHYSICALNAME from GDB_ITEMS_VW where GEODROPINID = ?";
+		
+		try(Connection conn = Inserter.getConnection();
+				PreparedStatement stmt = conn.prepareStatement(sql)) {
+			stmt.setString(1, geodropinId);
+			try (ResultSet rs = stmt.executeQuery()) {
+				return rs.next();
+			}
+		}
+	}
+	
+	private void clearTableAndGeom(Inserter inserter) throws SQLException {
+		String physicalNameWithoutScheme = inserter.physicalName.substring(inserter.physicalName.indexOf('.') + 1);
 		String sqlRemoveGeom = "delete from USER_SDO_GEOM_METADATA where TABLE_NAME = ?";
-		String sqlDropTable;
-		String physicalNameWithoutScheme;
-
-		try (Connection connection = getConnection()) {
-			// Get the PHYSICALNAME to create the DROP TABLE query
-			try (PreparedStatement stmt = connection.prepareStatement(sqlFetchPhysicalName)) {
-				stmt.setString(1, geodropinId);
-				try (ResultSet rs = stmt.executeQuery()) {
-					rs.next();
-					String physicalNameWithScheme = rs.getString(1);
-
-					StringBuilder sb = new StringBuilder(physicalNameWithScheme);
-					physicalNameWithoutScheme = sb.substring(physicalNameWithScheme.indexOf('.') + 1);
-
-					sqlDropTable = "drop table " + physicalNameWithoutScheme;
-				}
-			}
-
-			// Execute the query to drop the table
-			try (PreparedStatement stmt = connection.prepareStatement(sqlDropTable)) {
-				stmt.execute();
-			}
-
+		String sqlDropTable = "drop table " + physicalNameWithoutScheme;
+		
+		try(Connection connection = Inserter.getConnection()) {
 			// Execute the query to delete the geom metadata
-			try (PreparedStatement stmt = connection.prepareStatement(sqlRemoveGeom)) {
+			try(PreparedStatement stmt = connection.prepareStatement(sqlRemoveGeom)) {
 				stmt.setString(1, physicalNameWithoutScheme);
 				stmt.execute();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+			
+			// Execute the query to drop the table
+			try(PreparedStatement stmt = connection.prepareStatement(sqlDropTable)) {
+				stmt.execute();
+			} catch(SQLException sqle) {
+				sqle.printStackTrace();
+			}
 		}
-	}
-
-	private Connection getConnection() throws SQLException {
-		return DriverManager.getConnection("jdbc:oracle:thin:@" +
-			System.getenv("DB_IP") + ":" +
-			System.getenv("DB_PORT") + ":" +
-			System.getenv("DB_SID"),
-			System.getenv("DB_USER"),
-			System.getenv("DB_PASSWORD")
-		);
 	}
 	
 	public void fetchValuesFromJson() throws Exception {
 		HttpURLConnection connection = (HttpURLConnection) 
 				new URL(System.getenv("GEODROPIN_HOST") + "/json/" + this.geodropinId).openConnection();
 		InputStream datasetInfo = connection.getInputStream();
-		try (BufferedReader buffer = new BufferedReader(new InputStreamReader(datasetInfo, "UTF-8"))) {
+		try(BufferedReader buffer = new BufferedReader(new InputStreamReader(datasetInfo, "UTF-8"))) {
 			String json = buffer.lines().collect(Collectors.joining("\n"));
 			JSONParser jsonParser = new JSONParser();
 			Object resultObject = jsonParser.parse(json);
@@ -214,26 +191,26 @@ public class Inserter {
 				JSONObject object = (JSONObject) resultObject;
 				
 				Set<Map.Entry<String, Object>> keys = object.entrySet();
-				for (Map.Entry<String, Object> entry: keys) {
+				for(Map.Entry<String, Object> entry: keys) {
 					this.setEntry(entry);
 				}
 			}
 		}
 	}
 	
-	public void setEntry (Entry<String, Object> entry) {
+	public void setEntry(Entry<String, Object> entry) {
 		if("title".equals(entry.getKey())) {
 			this.title = entry.getValue().toString();
 		} else if("description".equals(entry.getKey())) {
 			this.description = entry.getValue().toString();
 		} else if("date".equals(entry.getKey())) {
-			this.datasetDate = this.getDateStringFromJson(entry.getValue());
+			this.datasetDate = Inserter.getDateStringFromJson(entry.getValue());
 		} else if("lastRevisionDate".equals(entry.getKey())) {
-			this.metadataDate = this.getDateStringFromJson(entry.getValue());
+			this.metadataDate = Inserter.getDateStringFromJson(entry.getValue());
 		}
 	}
 	
-	public String getDateStringFromJson(Object value) {
+	public static String getDateStringFromJson(Object value) {
 		JSONObject date = (JSONObject) value;
 		Set<Map.Entry<String, Long>> dateSet = date.entrySet();
 		
@@ -246,5 +223,15 @@ public class Inserter {
 					.toLocalDate();
 		
 		return ld.format(DateTimeFormatter.ISO_DATE);
+	}
+	
+	private static Connection getConnection() throws SQLException {
+		return DriverManager.getConnection("jdbc:oracle:thin:@" +
+			System.getenv("DB_IP") + ":" +
+			System.getenv("DB_PORT") + ":" +
+			System.getenv("DB_SID"),
+			System.getenv("DB_USER"),
+			System.getenv("DB_PASSWORD")
+		);
 	}
 }
