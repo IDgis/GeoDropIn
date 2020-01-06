@@ -101,10 +101,11 @@ Meteor.methods({
 						"-e \"TYPEACTION=" + typeAction + "\" " +
 						"--volumes-from \"gdi_gdi.web_1\" " +
 						"-v \"gdi_ogr2ogr_logs:/var/log/ogr2ogr\" " +
-						"--network gdi-base " +
-						"--link gdi_proxy_1:" + process.env.GEODROPIN_HOST + " " +
-						"gdi_ogr2ogr.oracle.metadata " +
-						"/opt/start.sh";
+						"--network gdi-base ";
+                if (process.env.GEODROPIN_HOST.indexOf(".local") != -1) {
+                    command += "--link gdi_proxy_1:" + process.env.GEODROPIN_HOST + " ";
+                }
+                command += "gdi_ogr2ogr.oracle.metadata /opt/start.sh";
 				
 				exec(command, function(error, stdout, stderr){
 					if (error) {
@@ -163,10 +164,11 @@ Meteor.methods({
     	        		"-e \"TYPEACTION=" + typeAction + "\" " +
     	        		"--volumes-from \"gdi_gdi.web_1\" " +
     	        		"-v \"ogr2ogr_tnsadmin:/opt/instantclient_12_1\" " +
-    	        		"--network gdi-base " +
-    	        		"--link gdi_proxy_1:" + process.env.GEODROPIN_HOST + " " +
-    	        		"gdi_ogr2ogr.oracle.metadata " +
-    	        		"/opt/start.sh";
+    	        		"--network gdi-base ";
+                if (process.env.GEODROPIN_HOST.indexOf(".local") != -1) {
+                    command += "--link gdi_proxy_1:" + process.env.GEODROPIN_HOST + " ";
+                }
+                command += "gdi_ogr2ogr.oracle.metadata /opt/start.sh";
     	        
 				exec(command, function(error, stdout, stderr){
     	        	if (error) {
