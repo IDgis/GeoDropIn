@@ -163,6 +163,7 @@ Meteor.methods({
     	        		"-e \"GEODROPIN_ID=" + geodropinId + "\" " +
     	        		"-e \"TYPEACTION=" + typeAction + "\" " +
     	        		"--volumes-from \"gdi_gdi.web_1\" " +
+    	        		"-v \"gdi_ogr2ogr_logs:/var/log/ogr2ogr\" " +
     	        		"-v \"ogr2ogr_tnsadmin:/opt/instantclient_12_1\" " +
     	        		"--network gdi-base ";
                 if (process.env.GEODROPIN_HOST.indexOf(".local") != -1) {
