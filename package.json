@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
-    "bcrypt": "^1.0.3",
+    "bcryptjs": "^2.4.3",
     "busboy": "^0.2.14",
     "file-system": "^2.2.2",
     "jszip": "^3.1.5",
