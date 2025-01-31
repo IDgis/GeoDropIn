@@ -27,26 +27,6 @@ Router.route('/files/:id', function() {
 	this.response.end();
 }, {where: 'server'});
 
-Router.route('/logos/:filename', function() {
-	var fs = require('fs');
-	var path = require('path');
-	
-	var pathDir = process.env.GDI_PATH_LOGOS;
-	var filename = this.params.filename;
-	
-	var filePath = path.resolve(pathDir + filename);
-	var data = fs.readFileSync(filePath);
-    
-	this.response.writeHead(200, {
-	    'Content-Type': 'image/png',
-	    'Content-Disposition': 'attachment; filename=' + filename,
-	    'Content-Length': data.length
-	});
-	
-	this.response.write(data);
-	this.response.end();
-}, {where: 'server'});
-
 Router.route('/json/all/:user', function() {
 	var user = this.params.user;
 	var json = [];
