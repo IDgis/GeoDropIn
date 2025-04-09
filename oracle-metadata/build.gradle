@@ -29,11 +29,6 @@ dependencies {
 	compile files('libs/ojdbc7.jar')
 }
 
-docker {
-    url = System.env.DOCKER_HOST
-    certPath = new File(System.env.DOCKER_CERT_PATH)
-}
-
 task unpackTar(type: Copy) {
 	dependsOn distTar
 	
