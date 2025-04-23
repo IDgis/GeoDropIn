@@ -1,6 +1,6 @@
 ORACLE-XEC =
  (DESCRIPTION =
-   (ADDRESS = (PROTOCOL = TCP)(HOST = gdi_oracle_1)(PORT = 1521))
+   (ADDRESS = (PROTOCOL = TCP)(HOST = gdi-oracle-1)(PORT = 1521))
    (CONNECT_DATA =
      (SERVER = DEDICATED)
      (SID = XE)

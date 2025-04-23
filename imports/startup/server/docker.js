@@ -26,10 +26,10 @@ Meteor.methods({
 				        "-e \"LD_LIBRARY_PATH=/opt/instantclient_12_1\" " +
 						"-e \"GEODATA_ZIP_NAME=" + zipName + "\" " +
 						"-e \"TYPEACTION=" + typeAction + "\" " +
-						"--volumes-from \"gdi_gdi.web_1\" " +
+						"--volumes-from \"gdi-gdi.web-1\" " +
 						"-v \"ogr2ogr_tnsadmin:/opt/instantclient_12_1\" " +
 						"--network gdi-base " +
-						"gdi_ogr2ogr.oracle.metadata " +
+						"gdi-ogr2ogr.oracle.metadata " +
 						"/opt/validate.sh";
 
 				exec(command, function(error, stdout, stderr) {
@@ -91,7 +91,7 @@ Meteor.methods({
 						"-e \"JAVA_OPTS=-Xmx128M -Duser.timezone=Europe/Amsterdam\" " +
 						"-e \"GEODROPIN_HOST=" + process.env.GEODROPIN_HOST_PROTOCOL + 
 							"://" + process.env.GEODROPIN_HOST + "\" " +
-						"-e \"DB_IP=gdi_oracle_1\" " +
+						"-e \"DB_IP=gdi-oracle-1\" " +
 						"-e \"DB_PORT=1521\" " +
 						"-e \"DB_SID=XE\" " +
 						"-e \"DB_USER=" + oracleUser + "\" " +
@@ -99,13 +99,13 @@ Meteor.methods({
 						"-e \"GEODATA_ZIP_NAME=" + zipName + "\" " +
 						"-e \"GEODROPIN_ID=" + geodropinId + "\" " +
 						"-e \"TYPEACTION=" + typeAction + "\" " +
-						"--volumes-from \"gdi_gdi.web_1\" " +
+						"--volumes-from \"gdi-gdi.web-1\" " +
 						"-v \"gdi_ogr2ogr_logs:/var/log/ogr2ogr\" " +
 						"--network gdi-base ";
                 if (process.env.GEODROPIN_HOST.indexOf(".local") != -1) {
-                    command += "--link gdi_proxy_1:" + process.env.GEODROPIN_HOST + " ";
+                    command += "--link gdi-proxy-1:" + process.env.GEODROPIN_HOST + " ";
                 }
-                command += "gdi_ogr2ogr.oracle.metadata /opt/start.sh";
+                command += "gdi-ogr2ogr.oracle.metadata /opt/start.sh";
 				
 				exec(command, function(error, stdout, stderr){
 					if (error) {
@@ -154,7 +154,7 @@ Meteor.methods({
     	        		"-e \"JAVA_OPTS=-Xmx128M -Duser.timezone=Europe/Amsterdam\" " +
     	        		"-e \"GEODROPIN_HOST=" + process.env.GEODROPIN_HOST_PROTOCOL + 
     	        			"://" + process.env.GEODROPIN_HOST + "\" " +
-    	        		"-e \"DB_IP=gdi_oracle_1\" " +
+						"-e \"DB_IP=gdi-oracle-1\" " +
     	        		"-e \"DB_PORT=1521\" " +
     	        		"-e \"DB_SID=XE\" " +
     	        		"-e \"DB_USER=" + oracleUser + "\" " +
@@ -162,14 +162,14 @@ Meteor.methods({
     	        		"-e \"GEODATA_ZIP_NAME=" + zipName + "\" " +
     	        		"-e \"GEODROPIN_ID=" + geodropinId + "\" " +
     	        		"-e \"TYPEACTION=" + typeAction + "\" " +
-    	        		"--volumes-from \"gdi_gdi.web_1\" " +
+						"--volumes-from \"gdi-gdi.web-1\" " +
     	        		"-v \"gdi_ogr2ogr_logs:/var/log/ogr2ogr\" " +
     	        		"-v \"ogr2ogr_tnsadmin:/opt/instantclient_12_1\" " +
     	        		"--network gdi-base ";
                 if (process.env.GEODROPIN_HOST.indexOf(".local") != -1) {
-                    command += "--link gdi_proxy_1:" + process.env.GEODROPIN_HOST + " ";
+                    command += "--link gdi-proxy-1:" + process.env.GEODROPIN_HOST + " ";
                 }
-                command += "gdi_ogr2ogr.oracle.metadata /opt/start.sh";
+                command += "gdi-ogr2ogr.oracle.metadata /opt/start.sh";
     	        
 				exec(command, function(error, stdout, stderr){
     	        	if (error) {
