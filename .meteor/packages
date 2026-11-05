@@ -27,7 +27,6 @@ aldeed:collection2
 
 cfs:standard-packages
 cfs:filesystem
-cfs:gridfs
 
 momentjs:moment
 
